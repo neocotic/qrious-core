@@ -131,16 +131,6 @@ var QRious = Nevis.extend(function(options) {
 }, {
 
   /**
-   * The current version of {@link QRious}.
-   *
-   * @public
-   * @static
-   * @type {string}
-   * @memberof QRious
-   */
-  VERSION: '3.0.1',
-
-  /**
    * Configures the <code>service</code> provided to be used by all {@link QRious} instances.
    *
    * @param {Service} service - the {@link Service} to be configured
