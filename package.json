@@ -1,6 +1,6 @@
 {
   "name": "qrious-core",
-  "version": "4.0.0-alpha",
+  "version": "4.0.0",
   "description": "QRious core engine for QR code generation",
   "homepage": "https://github.com/neocotic/qrious-core",
   "bugs": {
