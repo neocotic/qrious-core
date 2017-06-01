@@ -1,0 +1,21 @@
+{
+  "extends": "notninja/es5",
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "max-params": [
+      "error",
+      5
+    ],
+    "no-bitwise": "off",
+    "no-empty-function": "off",
+    "no-invalid-this": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "args": "none"
+      }
+    ]
+  }
+}
