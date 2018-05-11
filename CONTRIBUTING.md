@@ -16,7 +16,7 @@ $ npm install
 $ npm test
 ```
 
-You must have at least [Node.js](https://nodejs.org) version 4 or newer and [npm](https://npmjs.com) installed version 5
+You must have at least [Node.js](https://nodejs.org) version 4 or newer and [npm](https://npmjs.com) version 5
 or newer installed.
 
 All pull requests should be made to the `develop` branch.
