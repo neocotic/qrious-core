@@ -70,10 +70,14 @@ var CanvasRenderer = Renderer.extend({
   /**
    * @override
    */
-  resize: function() {
+  resize: function(frame) {
     var element = this.element;
 
-    element.width = element.height = this.qrious.size;
+    if (this.qrious.trimPadding === true) {
+      element.width = element.height = Math.floor(this.qrious.size / frame.width) * frame.width;
+    } else {
+      element.width = element.height = this.qrious.size;
+    }
   }
 
 });

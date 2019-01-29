@@ -115,7 +115,7 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    */
   getModuleSize: function(frame) {
     var qrious = this.qrious;
-    var padding = qrious.padding || 0;
+    var padding = (!qrious.trimPadding && qrious.padding) || 0;
     var pixels = Math.floor((qrious.size - (padding * 2)) / frame.width);
 
     return Math.max(1, pixels);
@@ -138,6 +138,10 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
     var qrious = this.qrious;
     var padding = qrious.padding;
 
+    if (qrious.trimPadding === true) {
+      return 0;
+    }
+
     if (padding != null) {
       return padding;
     }
@@ -158,7 +162,7 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    */
   render: function(frame) {
     if (this.enabled) {
-      this.resize();
+      this.resize(frame);
       this.reset();
       this.draw(frame);
     }
@@ -181,12 +185,13 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    *
    * Implementations of {@link Renderer} <b>must</b> override this method with their own specific logic.
    *
+   * @param {Frame} frame - the {@link Frame} to be rendered
    * @return {void}
    * @protected
    * @abstract
    * @memberof Renderer#
    */
-  resize: function() {}
+  resize: function(frame) {}
 
 });
 

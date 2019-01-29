@@ -19,43 +19,45 @@
 
 'use strict';
 
-var Renderer = require('./Renderer');
+var ElementService = require('./ElementService');
 
 /**
- * An implementation of {@link Renderer} for working with <code>img</code> elements.
- *
- * This depends on {@link CanvasRenderer} being executed first as this implementation simply applies the data URL from
- * the rendered <code>canvas</code> element as the <code>src</code> for the <code>img</code> element being rendered.
+ * An implementation of {@link ElementService} intended for use within a browser environment.
  *
  * @public
  * @class
- * @extends Renderer
+ * @extends ElementService
  */
-var ImageRenderer = Renderer.extend({
+var BrowserElementService = ElementService.extend({
 
   /**
    * @override
    */
-  draw: function() {
-    this.element.src = this.qrious.toDataURL();
+  createCanvas: function() {
+    return document.createElement('canvas');
   },
 
   /**
    * @override
    */
-  reset: function() {
-    this.element.src = '';
+  createImage: function() {
+    return document.createElement('img');
   },
 
   /**
    * @override
    */
-  resize: function(frame) {
-    var element = this.element;
+  isCanvas: function(element) {
+    return element instanceof HTMLCanvasElement;
+  },
 
-    element.width = element.height = this.qrious.size;
+  /**
+   * @override
+   */
+  isImage: function(element) {
+    return element instanceof HTMLImageElement;
   }
 
 });
 
-module.exports = ImageRenderer;
+module.exports = BrowserElementService;

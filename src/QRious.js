@@ -38,6 +38,7 @@ var optionManager = new OptionManager([
   new Option('level', true, 'L', Utilities.toUpperCase),
   new Option('mime', true, 'image/png'),
   new Option('padding', true, null, Utilities.abs),
+  new Option('trimPadding', true, false),
   new Option('size', true, 100, Utilities.abs),
   new Option('value', true, '')
 ]);
@@ -193,6 +194,7 @@ module.exports = QRious;
  * @property {string} [level="L"] - The error correction level to be applied to the QR code.
  * @property {string} [mime="image/png"] - The MIME type to be used to render the image for the QR code.
  * @property {number} [padding] - The padding for the QR code in pixels.
+ * @property {boolean} [trimPadding=false] - The flag for creating QR code without padding.
  * @property {number} [size=100] - The size of the QR code in pixels.
  * @property {string} [value=""] - The value to be encoded within the QR code.
  */
