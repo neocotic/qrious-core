@@ -21,16 +21,13 @@
 
 /* eslint no-multi-spaces: "off" */
 
-var Nevis = require('nevis/lite');
-
 /**
  * Contains error correction information.
  *
  * @public
  * @class
- * @extends Nevis
  */
-var ErrorCorrection = Nevis.extend(null, {
+const ErrorCorrection = {
 
   /**
    * The error correction blocks.
@@ -120,6 +117,6 @@ var ErrorCorrection = Nevis.extend(null, {
     H: 4
   }
 
-});
+};
 
 module.exports = ErrorCorrection;

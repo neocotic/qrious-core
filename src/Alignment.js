@@ -21,8 +21,6 @@
 
 /* eslint no-multi-spaces: "off" */
 
-var Nevis = require('nevis/lite');
-
 /**
  * Contains alignment pattern information.
  *
@@ -30,7 +28,7 @@ var Nevis = require('nevis/lite');
  * @class
  * @extends Nevis
  */
-var Alignment = Nevis.extend(null, {
+const Alignment = {
 
   /**
    * The alignment pattern block.
@@ -46,6 +44,6 @@ var Alignment = Nevis.extend(null, {
     26, 26, 28, 28, 24, 24, 26, 26, 26, 28, 28, 24, 26, 26, 26, 28, 28
   ]
 
-});
+};
 
 module.exports = Alignment;

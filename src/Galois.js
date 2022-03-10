@@ -19,8 +19,6 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 /**
  * Contains Galois field information.
  *
@@ -28,7 +26,7 @@ var Nevis = require('nevis/lite');
  * @class
  * @extends Nevis
  */
-var Galois = Nevis.extend(null, {
+const Galois = {
 
   /**
    * The Galois field exponent table.
@@ -84,6 +82,6 @@ var Galois = Nevis.extend(null, {
     0x4f, 0xae, 0xd5, 0xe9, 0xe6, 0xe7, 0xad, 0xe8, 0x74, 0xd6, 0xf4, 0xea, 0xa8, 0x50, 0x58, 0xaf
   ]
 
-});
+};
 
 module.exports = Galois;

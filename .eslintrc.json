@@ -3,6 +3,9 @@
   "env": {
     "node": true
   },
+  "parserOptions": {
+	  "ecmaVersion": 8
+  },
   "rules": {
     "max-params": [
       "error",

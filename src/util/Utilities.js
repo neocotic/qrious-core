@@ -19,16 +19,13 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 /**
  * Contains utility methods that are useful throughout the library.
  *
  * @public
  * @class
- * @extends Nevis
  */
-var Utilities = Nevis.extend(null, {
+const Utilities = {
 
   /**
    * Returns the absolute value of a given number.
@@ -85,6 +82,6 @@ var Utilities = Nevis.extend(null, {
     return string != null ? string.toUpperCase() : null;
   }
 
-});
+};
 
 module.exports = Utilities;
