@@ -19,18 +19,17 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 /**
  * A basic manager for {@link Service} implementations that are mapped to simple names.
  *
  * @public
  * @class
- * @extends Nevis
  */
-var ServiceManager = Nevis.extend(function() {
-  this._services = {};
-}, {
+class ServiceManager {
+
+  constructor() {
+    this._services = {};
+  }
 
   /**
    * Returns the {@link Service} being managed with the specified <code>name</code>.
@@ -41,14 +40,14 @@ var ServiceManager = Nevis.extend(function() {
    * @public
    * @memberof ServiceManager#
    */
-  getService: function(name) {
+  getService(name) {
     var service = this._services[name];
     if (!service) {
       throw new Error('Service is not being managed with name: ' + name);
     }
 
     return service;
-  },
+  }
 
   /**
    * Sets the {@link Service} implementation to be managed for the specified <code>name</code> to the
@@ -61,7 +60,7 @@ var ServiceManager = Nevis.extend(function() {
    * @public
    * @memberof ServiceManager#
    */
-  setService: function(name, service) {
+  setService(name, service) {
     if (this._services[name]) {
       throw new Error('Service is already managed with name: ' + name);
     }
@@ -71,6 +70,6 @@ var ServiceManager = Nevis.extend(function() {
     }
   }
 
-});
+}
 
 module.exports = ServiceManager;

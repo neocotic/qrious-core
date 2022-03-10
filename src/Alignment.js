@@ -26,7 +26,6 @@
  *
  * @public
  * @class
- * @extends Nevis
  */
 const Alignment = {
 
@@ -34,7 +33,6 @@ const Alignment = {
    * The alignment pattern block.
    *
    * @public
-   * @static
    * @type {number[]}
    * @memberof Alignment
    */

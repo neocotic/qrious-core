@@ -19,8 +19,6 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 /**
  * Contains version pattern information.
  *
@@ -28,7 +26,7 @@ var Nevis = require('nevis/lite');
  * @class
  * @extends Nevis
  */
-var Version = Nevis.extend(null, {
+const Version = {
 
   /**
    * The version pattern block.
@@ -44,6 +42,6 @@ var Version = Nevis.extend(null, {
     0x6f0, 0x8ba, 0x79f, 0xb0b, 0x42e, 0xa64, 0x541, 0xc69
   ]
 
-});
+};
 
 module.exports = Version;

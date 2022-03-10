@@ -25,7 +25,7 @@
  * @public
  * @class
  */
-const Utilities = {
+class Utilities {
 
   /**
    * Returns the absolute value of a given number.
@@ -40,9 +40,9 @@ const Utilities = {
    * @static
    * @memberof Utilities
    */
-  abs: function(value) {
+  static abs(value) {
     return value != null ? Math.abs(value) : null;
-  },
+  }
 
   /**
    * Returns whether the specified <code>object</code> has a property with the specified <code>name</code> as an own
@@ -55,9 +55,9 @@ const Utilities = {
    * @static
    * @memberof Utilities
    */
-  hasOwn: function(object, name) {
+  static hasOwn(object, name) {
     return Object.prototype.hasOwnProperty.call(object, name);
-  },
+  }
 
   /**
    * A non-operation method that does absolutely nothing.
@@ -67,7 +67,7 @@ const Utilities = {
    * @static
    * @memberof Utilities
    */
-  noop: function() {},
+  static noop() {}
 
   /**
    * Transforms the specified <code>string</code> to upper case while remaining null-safe.
@@ -78,10 +78,10 @@ const Utilities = {
    * @static
    * @memberof Utilities
    */
-  toUpperCase: function(string) {
+  static toUpperCase(string) {
     return string != null ? string.toUpperCase() : null;
   }
 
-};
+}
 
 module.exports = Utilities;
