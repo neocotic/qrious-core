@@ -19,8 +19,6 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 var Alignment = require('./Alignment');
 var ErrorCorrection = require('./ErrorCorrection');
 var Galois = require('./Galois');
@@ -34,81 +32,83 @@ var Version = require('./Version');
  * @class
  * @extends Nevis
  */
-var Frame = Nevis.extend(function(options) {
-  var dataBlock, eccBlock, index, neccBlock1, neccBlock2;
-  var valueLength = options.value.length;
+class Frame {
 
-  this._badness = [];
-  this._level = ErrorCorrection.LEVELS[options.level];
-  this._polynomial = [];
-  this._value = options.value;
-  this._version = 0;
-  this._stringBuffer = [];
+  constructor(options) {
+    var dataBlock, eccBlock, index, neccBlock1, neccBlock2;
+    var valueLength = options.value.length;
 
-  while (this._version < 40) {
-    this._version++;
+    this._badness = [];
+    this._level = ErrorCorrection.LEVELS[options.level];
+    this._polynomial = [];
+    this._value = options.value;
+    this._version = 0;
+    this._stringBuffer = [];
 
-    index = ((this._level - 1) * 4) + ((this._version - 1) * 16);
+    while (this._version < 40) {
+      this._version++;
 
-    neccBlock1 = ErrorCorrection.BLOCKS[index++];
-    neccBlock2 = ErrorCorrection.BLOCKS[index++];
-    dataBlock = ErrorCorrection.BLOCKS[index++];
-    eccBlock = ErrorCorrection.BLOCKS[index];
+      index = ((this._level - 1) * 4) + ((this._version - 1) * 16);
 
-    index = (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + (this._version <= 9);
+      neccBlock1 = ErrorCorrection.BLOCKS[index++];
+      neccBlock2 = ErrorCorrection.BLOCKS[index++];
+      dataBlock = ErrorCorrection.BLOCKS[index++];
+      eccBlock = ErrorCorrection.BLOCKS[index];
 
-    if (valueLength <= index) {
-      break;
+      index = (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + (this._version <= 9);
+
+      if (valueLength <= index) {
+        break;
+      }
     }
+
+    this._dataBlock = dataBlock;
+    this._eccBlock = eccBlock;
+    this._neccBlock1 = neccBlock1;
+    this._neccBlock2 = neccBlock2;
+
+    /**
+     * The data width is based on version.
+     *
+     * @public
+     * @type {number}
+     * @memberof Frame#
+     */
+    // FIXME: Ensure that it fits instead of being truncated.
+    var width = this.width = 17 + (4 * this._version);
+
+    /**
+     * The image buffer.
+     *
+     * @public
+     * @type {number[]}
+     * @memberof Frame#
+     */
+    this.buffer = Frame._createArray(width * width);
+
+    this._ecc = Frame._createArray(dataBlock + ((dataBlock + eccBlock) * (neccBlock1 + neccBlock2)) + neccBlock2);
+    this._mask = Frame._createArray(((width * (width + 1)) + 1) / 2);
+
+    this._insertFinders();
+    this._insertAlignments();
+
+    // Insert single foreground cell.
+    this.buffer[8 + (width * (width - 8))] = 1;
+
+    this._insertTimingGap();
+    this._reverseMask();
+    this._insertTimingRowAndColumn();
+    this._insertVersion();
+    this._syncMask();
+    this._convertBitStream(valueLength);
+    this._calculatePolynomial();
+    this._appendEccToData();
+    this._interleaveBlocks();
+    this._pack();
+    this._finish();
   }
 
-  this._dataBlock = dataBlock;
-  this._eccBlock = eccBlock;
-  this._neccBlock1 = neccBlock1;
-  this._neccBlock2 = neccBlock2;
-
-  /**
-   * The data width is based on version.
-   *
-   * @public
-   * @type {number}
-   * @memberof Frame#
-   */
-  // FIXME: Ensure that it fits instead of being truncated.
-  var width = this.width = 17 + (4 * this._version);
-
-  /**
-   * The image buffer.
-   *
-   * @public
-   * @type {number[]}
-   * @memberof Frame#
-   */
-  this.buffer = Frame._createArray(width * width);
-
-  this._ecc = Frame._createArray(dataBlock + ((dataBlock + eccBlock) * (neccBlock1 + neccBlock2)) + neccBlock2);
-  this._mask = Frame._createArray(((width * (width + 1)) + 1) / 2);
-
-  this._insertFinders();
-  this._insertAlignments();
-
-  // Insert single foreground cell.
-  this.buffer[8 + (width * (width - 8))] = 1;
-
-  this._insertTimingGap();
-  this._reverseMask();
-  this._insertTimingRowAndColumn();
-  this._insertVersion();
-  this._syncMask();
-  this._convertBitStream(valueLength);
-  this._calculatePolynomial();
-  this._appendEccToData();
-  this._interleaveBlocks();
-  this._pack();
-  this._finish();
-}, {
-
-  _addAlignment: function(x, y) {
+  _addAlignment(x, y) {
     var i;
     var buffer = this.buffer;
     var width = this.width;
@@ -128,9 +128,9 @@ var Frame = Nevis.extend(function(options) {
       this._setMask(x - i, y - 1);
       this._setMask(x + i, y + 1);
     }
-  },
+  }
 
-  _appendData: function(data, dataLength, ecc, eccLength) {
+  _appendData(data, dataLength, ecc, eccLength) {
     var bit, i, j;
     var polynomial = this._polynomial;
     var stringBuffer = this._stringBuffer;
@@ -155,9 +155,9 @@ var Frame = Nevis.extend(function(options) {
 
       stringBuffer[ecc + eccLength - 1] = bit === 255 ? 0 : Galois.EXPONENT[Frame._modN(bit + polynomial[0])];
     }
-  },
+  }
 
-  _appendEccToData: function() {
+  _appendEccToData() {
     var i;
     var data = 0;
     var dataBlock = this._dataBlock;
@@ -177,9 +177,9 @@ var Frame = Nevis.extend(function(options) {
       data += dataBlock + 1;
       ecc += eccBlock;
     }
-  },
+  }
 
-  _applyMask: function(mask) {
+  _applyMask(mask) {
     var r3x, r3y, x, y;
     var buffer = this.buffer;
     var width = this.width;
@@ -307,13 +307,13 @@ var Frame = Nevis.extend(function(options) {
 
       break;
     }
-  },
+  }
 
-  _calculateMaxLength: function() {
+  _calculateMaxLength() {
     return (this._dataBlock * (this._neccBlock1 + this._neccBlock2)) + this._neccBlock2;
-  },
+  }
 
-  _calculatePolynomial: function() {
+  _calculatePolynomial() {
     var i, j;
     var eccBlock = this._eccBlock;
     var polynomial = this._polynomial;
@@ -335,9 +335,9 @@ var Frame = Nevis.extend(function(options) {
     for (i = 0; i <= eccBlock; i++) {
       polynomial[i] = Galois.LOG[polynomial[i]];
     }
-  },
+  }
 
-  _checkBadness: function() {
+  _checkBadness() {
     var b, b1, h, x, y;
     var bad = 0;
     var badness = this._badness;
@@ -424,9 +424,9 @@ var Frame = Nevis.extend(function(options) {
     }
 
     return bad;
-  },
+  }
 
-  _convertBitStream: function(length) {
+  _convertBitStream(length) {
     var bit, i;
     var ecc = this._ecc;
     var version = this._version;
@@ -486,9 +486,9 @@ var Frame = Nevis.extend(function(options) {
       stringBuffer[index++] = 0xec;
       stringBuffer[index++] = 0x11;
     }
-  },
+  }
 
-  _getBadness: function(length) {
+  _getBadness(length) {
     var i;
     var badRuns = 0;
     var badness = this._badness;
@@ -514,9 +514,9 @@ var Frame = Nevis.extend(function(options) {
     }
 
     return badRuns;
-  },
+  }
 
-  _finish: function() {
+  _finish() {
     // Save pre-mask copy of frame.
     this._stringBuffer = this.buffer.slice();
 
@@ -585,9 +585,9 @@ var Frame = Nevis.extend(function(options) {
         }
       }
     }
-  },
+  }
 
-  _interleaveBlocks: function() {
+  _interleaveBlocks() {
     var i, j;
     var dataBlock = this._dataBlock;
     var ecc = this._ecc;
@@ -619,9 +619,9 @@ var Frame = Nevis.extend(function(options) {
     }
 
     this._stringBuffer = ecc;
-  },
+  }
 
-  _insertAlignments: function() {
+  _insertAlignments() {
     var i, x, y;
     var version = this._version;
     var width = this.width;
@@ -653,9 +653,9 @@ var Frame = Nevis.extend(function(options) {
         this._addAlignment(y, 6);
       }
     }
-  },
+  }
 
-  _insertFinders: function() {
+  _insertFinders() {
     var i, j, x, y;
     var buffer = this.buffer;
     var width = this.width;
@@ -694,9 +694,9 @@ var Frame = Nevis.extend(function(options) {
         buffer[y + x + 1 + (width * (j + 4))] = 1;
       }
     }
-  },
+  }
 
-  _insertTimingGap: function() {
+  _insertTimingGap() {
     var x, y;
     var width = this.width;
 
@@ -711,9 +711,9 @@ var Frame = Nevis.extend(function(options) {
       this._setMask(x + width - 8, 7);
       this._setMask(x, width - 8);
     }
-  },
+  }
 
-  _insertTimingRowAndColumn: function() {
+  _insertTimingRowAndColumn() {
     var x;
     var buffer = this.buffer;
     var width = this.width;
@@ -727,9 +727,9 @@ var Frame = Nevis.extend(function(options) {
         buffer[6 + (width * (8 + x))] = 1;
       }
     }
-  },
+  }
 
-  _insertVersion: function() {
+  _insertVersion() {
     var i, j, x, y;
     var buffer = this.buffer;
     var version = this._version;
@@ -751,15 +751,15 @@ var Frame = Nevis.extend(function(options) {
         }
       }
     }
-  },
+  }
 
-  _isMasked: function(x, y) {
+  _isMasked(x, y) {
     var bit = Frame._getMaskBit(x, y);
 
     return this._mask[bit] === 1;
-  },
+  }
 
-  _pack: function() {
+  _pack() {
     var bit, i, j;
     var k = 1;
     var v = 1;
@@ -814,9 +814,9 @@ var Frame = Nevis.extend(function(options) {
         } while (this._isMasked(x, y));
       }
     }
-  },
+  }
 
-  _reverseMask: function() {
+  _reverseMask() {
     var x, y;
     var width = this.width;
 
@@ -832,15 +832,15 @@ var Frame = Nevis.extend(function(options) {
     for (y = 0; y < 7; y++) {
       this._setMask(8, y + width - 7);
     }
-  },
+  }
 
-  _setMask: function(x, y) {
+  _setMask(x, y) {
     var bit = Frame._getMaskBit(x, y);
 
     this._mask[bit] = 1;
-  },
+  }
 
-  _syncMask: function() {
+  _syncMask() {
     var x, y;
     var width = this.width;
 
@@ -853,9 +853,7 @@ var Frame = Nevis.extend(function(options) {
     }
   }
 
-}, {
-
-  _createArray: function(length) {
+  static _createArray(length) {
     var i;
     var array = [];
 
@@ -864,9 +862,9 @@ var Frame = Nevis.extend(function(options) {
     }
 
     return array;
-  },
+  }
 
-  _getMaskBit: function(x, y) {
+  static _getMaskBit(x, y) {
     var bit;
 
     if (x > y) {
@@ -881,24 +879,35 @@ var Frame = Nevis.extend(function(options) {
     bit += x;
 
     return bit;
-  },
+  }
 
-  _modN: function(x) {
+  static modN(x) {
     while (x >= 255) {
       x -= 255;
       x = (x >> 8) + (x & 255);
     }
 
     return x;
-  },
+  }
 
   // *Badness* coefficients.
-  N1: 3,
-  N2: 3,
-  N3: 40,
-  N4: 10
+  static get N1() {
+    return 3;
+  }
 
-});
+  static get N2() {
+    return 3;
+  }
+
+  static get N3() {
+    return 40;
+  }
+
+  static get N4() {
+    return 10;
+  }
+
+}
 
 module.exports = Frame;
 

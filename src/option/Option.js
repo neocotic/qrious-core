@@ -19,8 +19,6 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 /**
  * Defines an available option while also configuring how values are applied to the target object.
  *
@@ -42,36 +40,38 @@ var Nevis = require('nevis/lite');
  * @class
  * @extends Nevis
  */
-var Option = Nevis.extend(function(name, modifiable, defaultValue, valueTransformer) {
-  /**
-   * The name for this {@link Option}.
-   *
-   * @public
-   * @type {string}
-   * @memberof Option#
-   */
-  this.name = name;
+class Option {
 
-  /**
-   * Whether a setter should be included on the property defined on target objects for this {@link Option}.
-   *
-   * @public
-   * @type {boolean}
-   * @memberof Option#
-   */
-  this.modifiable = Boolean(modifiable);
+  constructor(name, modifiable, defaultValue, valueTransformer) {
+    /**
+     * The name for this {@link Option}.
+     *
+     * @public
+     * @type {string}
+     * @memberof Option#
+     */
+    this.name = name;
 
-  /**
-   * The default value for this {@link Option}.
-   *
-   * @public
-   * @type {*}
-   * @memberof Option#
-   */
-  this.defaultValue = defaultValue;
+    /**
+     * Whether a setter should be included on the property defined on target objects for this {@link Option}.
+     *
+     * @public
+     * @type {boolean}
+     * @memberof Option#
+     */
+    this.modifiable = Boolean(modifiable);
 
-  this._valueTransformer = valueTransformer;
-}, {
+    /**
+     * The default value for this {@link Option}.
+     *
+     * @public
+     * @type {*}
+     * @memberof Option#
+     */
+    this.defaultValue = defaultValue;
+
+    this._valueTransformer = valueTransformer;
+  }
 
   /**
    * Transforms the specified <code>value</code> so that it can be applied for this {@link Option}.
@@ -84,7 +84,7 @@ var Option = Nevis.extend(function(name, modifiable, defaultValue, valueTransfor
    * @public
    * @memberof Option#
    */
-  transform: function(value) {
+  transform(value) {
     var transformer = this._valueTransformer;
     if (typeof transformer === 'function') {
       return transformer(value, this);
@@ -93,7 +93,7 @@ var Option = Nevis.extend(function(name, modifiable, defaultValue, valueTransfor
     return value;
   }
 
-});
+}
 
 module.exports = Option;
 

@@ -19,8 +19,6 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 /**
  * Responsible for rendering a QR code {@link Frame} on a specific type of element.
  *
@@ -36,35 +34,37 @@ var Nevis = require('nevis/lite');
  * @class
  * @extends Nevis
  */
-var Renderer = Nevis.extend(function(qrious, element, enabled) {
-  /**
-   * The {@link QRious} instance.
-   *
-   * @protected
-   * @type {QRious}
-   * @memberof Renderer#
-   */
-  this.qrious = qrious;
+class Renderer {
 
-  /**
-   * The element onto which this {@link Renderer} is rendering the QR code.
-   *
-   * @protected
-   * @type {*}
-   * @memberof Renderer#
-   */
-  this.element = element;
-  this.element.qrious = qrious;
+  constructor(qrious, element, enabled) {
+    /**
+     * The {@link QRious} instance.
+     *
+     * @protected
+     * @type {QRious}
+     * @memberof Renderer#
+     */
+    this.qrious = qrious;
 
-  /**
-   * Whether this {@link Renderer} is enabled.
-   *
-   * @protected
-   * @type {boolean}
-   * @memberof Renderer#
-   */
-  this.enabled = Boolean(enabled);
-}, {
+    /**
+     * The element onto which this {@link Renderer} is rendering the QR code.
+     *
+     * @protected
+     * @type {*}
+     * @memberof Renderer#
+     */
+    this.element = element;
+    this.element.qrious = qrious;
+
+    /**
+     * Whether this {@link Renderer} is enabled.
+     *
+     * @protected
+     * @type {boolean}
+     * @memberof Renderer#
+     */
+    this.enabled = Boolean(enabled);
+  }
 
   /**
    * Draws the specified QR code <code>frame</code> on the underlying element.
@@ -77,7 +77,7 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    * @abstract
    * @memberof Renderer#
    */
-  draw: function(frame) {},
+  draw(frame) {}
 
   /**
    * Returns the element onto which this {@link Renderer} is rendering the QR code.
@@ -89,14 +89,14 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    * @public
    * @memberof Renderer#
    */
-  getElement: function() {
+  getElement() {
     if (!this.enabled) {
       this.enabled = true;
       this.render();
     }
 
     return this.element;
-  },
+  }
 
   /**
    * Calculates the size (in pixel units) to represent an individual module within the QR code based on the
@@ -113,13 +113,13 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    * @protected
    * @memberof Renderer#
    */
-  getModuleSize: function(frame) {
+  getModuleSize(frame) {
     var qrious = this.qrious;
     var padding = qrious.padding || 0;
     var pixels = Math.floor((qrious.size - (padding * 2)) / frame.width);
 
     return Math.max(1, pixels);
-  },
+  }
 
   /**
    * Calculates the offset/padding (in pixel units) to be inserted before the QR code based on the <code>frame</code>
@@ -134,7 +134,7 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    * @protected
    * @memberof Renderer#
    */
-  getOffset: function(frame) {
+  getOffset(frame) {
     var qrious = this.qrious;
     var padding = qrious.padding;
 
@@ -146,7 +146,7 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
     var offset = Math.floor((qrious.size - (moduleSize * frame.width)) / 2);
 
     return Math.max(0, offset);
-  },
+  }
 
   /**
    * Renders a QR code on the underlying element based on the <code>frame</code> provided.
@@ -156,13 +156,13 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    * @public
    * @memberof Renderer#
    */
-  render: function(frame) {
+  render(frame) {
     if (this.enabled) {
       this.resize();
       this.reset();
       this.draw(frame);
     }
-  },
+  }
 
   /**
    * Resets the underlying element, effectively clearing any previously rendered QR code.
@@ -174,7 +174,7 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    * @abstract
    * @memberof Renderer#
    */
-  reset: function() {},
+  reset() {}
 
   /**
    * Ensures that the size of the underlying element matches that defined on the associated {@link QRious} instance.
@@ -186,8 +186,8 @@ var Renderer = Nevis.extend(function(qrious, element, enabled) {
    * @abstract
    * @memberof Renderer#
    */
-  resize: function() {}
+  resize() {}
 
-});
+}
 
 module.exports = Renderer;

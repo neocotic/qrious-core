@@ -24,7 +24,6 @@
  *
  * @public
  * @class
- * @extends Nevis
  */
 const Galois = {
 

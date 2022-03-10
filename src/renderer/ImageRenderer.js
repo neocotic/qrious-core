@@ -31,31 +31,31 @@ var Renderer = require('./Renderer');
  * @class
  * @extends Renderer
  */
-var ImageRenderer = Renderer.extend({
+class ImageRenderer extends Renderer {
 
   /**
    * @override
    */
-  draw: function() {
+  draw() {
     this.element.src = this.qrious.toDataURL();
-  },
+  }
 
   /**
    * @override
    */
-  reset: function() {
+  reset() {
     this.element.src = '';
-  },
+  }
 
   /**
    * @override
    */
-  resize: function() {
+  resize() {
     var element = this.element;
 
     element.width = element.height = this.qrious.size;
   }
 
-});
+}
 
 module.exports = ImageRenderer;

@@ -28,7 +28,7 @@ var Service = require('../Service');
  * @class
  * @extends Service
  */
-var ElementService = Service.extend({
+class ElementService extends Service {
 
   /**
    * Creates an instance of a canvas element.
@@ -40,7 +40,7 @@ var ElementService = Service.extend({
    * @abstract
    * @memberof ElementService#
    */
-  createCanvas: function() {},
+  createCanvas() {}
 
   /**
    * Creates an instance of a image element.
@@ -52,14 +52,14 @@ var ElementService = Service.extend({
    * @abstract
    * @memberof ElementService#
    */
-  createImage: function() {},
+  createImage() {}
 
   /**
    * @override
    */
-  getName: function() {
+  getName() {
     return 'element';
-  },
+  }
 
   /**
    * Returns whether the specified <code>element</code> is a canvas.
@@ -72,7 +72,7 @@ var ElementService = Service.extend({
    * @abstract
    * @memberof ElementService#
    */
-  isCanvas: function(element) {},
+  isCanvas(element) {}
 
   /**
    * Returns whether the specified <code>element</code> is an image.
@@ -85,8 +85,8 @@ var ElementService = Service.extend({
    * @abstract
    * @memberof ElementService#
    */
-  isImage: function(element) {}
+  isImage(element) {}
 
-});
+}
 
 module.exports = ElementService;

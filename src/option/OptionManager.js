@@ -19,8 +19,6 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 var Utilities = require('../util/Utilities');
 
 /**
@@ -31,22 +29,23 @@ var Utilities = require('../util/Utilities');
  * @param {Option[]} options - the options to be used
  * @public
  * @class
- * @extends Nevis
  */
-var OptionManager = Nevis.extend(function(options) {
-  /**
-   * The available options for this {@link OptionManager}.
-   *
-   * @public
-   * @type {Object.<string, Option>}
-   * @memberof OptionManager#
-   */
-  this.options = {};
+class OptionManager {
 
-  options.forEach(function(option) {
-    this.options[option.name] = option;
-  }, this);
-}, {
+  constructor(options) {
+    /**
+     * The available options for this {@link OptionManager}.
+     *
+     * @public
+     * @type {Object.<string, Option>}
+     * @memberof OptionManager#
+     */
+    this.options = {};
+
+    options.forEach(function(option) {
+      this.options[option.name] = option;
+    }, this);
+  }
 
   /**
    * Returns whether an option with the specified <code>name</code> is available.
@@ -57,9 +56,9 @@ var OptionManager = Nevis.extend(function(options) {
    * @public
    * @memberof OptionManager#
    */
-  exists: function(name) {
+  exists(name) {
     return this.options[name] != null;
-  },
+  }
 
   /**
    * Returns the value of the option with the specified <code>name</code> on the <code>target</code> object provided.
@@ -70,9 +69,9 @@ var OptionManager = Nevis.extend(function(options) {
    * @public
    * @memberof OptionManager#
    */
-  get: function(name, target) {
+  get(name, target) {
     return OptionManager._get(this.options[name], target);
-  },
+  }
 
   /**
    * Returns a copy of all of the available options on the <code>target</code> object provided.
@@ -82,7 +81,7 @@ var OptionManager = Nevis.extend(function(options) {
    * @public
    * @memberof OptionManager#
    */
-  getAll: function(target) {
+  getAll(target) {
     var name;
     var options = this.options;
     var result = {};
@@ -94,7 +93,7 @@ var OptionManager = Nevis.extend(function(options) {
     }
 
     return result;
-  },
+  }
 
   /**
    * Initializes the available options for the <code>target</code> object provided and then applies the initial values
@@ -119,7 +118,7 @@ var OptionManager = Nevis.extend(function(options) {
    * @public
    * @memberof OptionManager#
    */
-  init: function(options, target, changeHandler) {
+  init(options, target, changeHandler) {
     if (typeof changeHandler !== 'function') {
       changeHandler = Utilities.noop;
     }
@@ -136,7 +135,7 @@ var OptionManager = Nevis.extend(function(options) {
     }
 
     this._setAll(options, target, true);
-  },
+  }
 
   /**
    * Sets the value of the option with the specified <code>name</code> on the <code>target</code> object provided to
@@ -160,9 +159,9 @@ var OptionManager = Nevis.extend(function(options) {
    * @public
    * @memberof OptionManager#
    */
-  set: function(name, value, target) {
+  set(name, value, target) {
     return this._set(name, value, target);
-  },
+  }
 
   /**
    * Sets all of the specified <code>options</code> on the <code>target</code> object provided to their corresponding
@@ -186,11 +185,11 @@ var OptionManager = Nevis.extend(function(options) {
    * @public
    * @memberof OptionManager#
    */
-  setAll: function(options, target) {
+  setAll(options, target) {
     return this._setAll(options, target);
-  },
+  }
 
-  _set: function(name, value, target, allowUnmodifiable) {
+  _set(name, value, target, allowUnmodifiable) {
     var option = this.options[name];
     if (!option) {
       throw new Error('Invalid option: ' + name);
@@ -200,9 +199,9 @@ var OptionManager = Nevis.extend(function(options) {
     }
 
     return OptionManager._set(option, value, target);
-  },
+  }
 
-  _setAll: function(options, target, allowUnmodifiable) {
+  _setAll(options, target, allowUnmodifiable) {
     if (!options) {
       return false;
     }
@@ -219,9 +218,7 @@ var OptionManager = Nevis.extend(function(options) {
     return changed;
   }
 
-}, {
-
-  _createAccessor: function(option, target, changeHandler) {
+  static _createAccessor(option, target, changeHandler) {
     var descriptor = {
       get: function() {
         return OptionManager._get(option, target);
@@ -237,13 +234,13 @@ var OptionManager = Nevis.extend(function(options) {
     }
 
     Object.defineProperty(target, option.name, descriptor);
-  },
+  }
 
-  _get: function(option, target) {
+  static _get(option, target) {
     return target['_' + option.name];
-  },
+  }
 
-  _set: function(option, value, target) {
+  static _set(option, value, target) {
     var fieldName = '_' + option.name;
     var oldValue = target[fieldName];
     var newValue = option.transform(value != null ? value : option.defaultValue);
@@ -253,7 +250,7 @@ var OptionManager = Nevis.extend(function(options) {
     return newValue !== oldValue;
   }
 
-});
+}
 
 module.exports = OptionManager;
 

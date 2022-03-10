@@ -19,8 +19,6 @@
 
 'use strict';
 
-var Nevis = require('nevis/lite');
-
 var CanvasRenderer = require('./renderer/CanvasRenderer');
 var Frame = require('./Frame');
 var ImageRenderer = require('./renderer/ImageRenderer');
@@ -50,21 +48,22 @@ var serviceManager = new ServiceManager();
  * @throws {Error} If any <code>options</code> are invalid.
  * @public
  * @class
- * @extends Nevis
  */
-var QRious = Nevis.extend(function(options) {
-  optionManager.init(options, this, this.update.bind(this));
+class QRious {
 
-  var element = optionManager.get('element', this);
-  var elementService = serviceManager.getService('element');
-  var canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
-  var image = element && elementService.isImage(element) ? element : elementService.createImage();
+  constructor(options) {
+    optionManager.init(options, this, this.update.bind(this));
 
-  this._canvasRenderer = new CanvasRenderer(this, canvas, true);
-  this._imageRenderer = new ImageRenderer(this, image, image === element);
+    var element = optionManager.get('element', this);
+    var elementService = serviceManager.getService('element');
+    var canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
+    var image = element && elementService.isImage(element) ? element : elementService.createImage();
 
-  this.update();
-}, {
+    this._canvasRenderer = new CanvasRenderer(this, canvas, true);
+    this._imageRenderer = new ImageRenderer(this, image, image === element);
+
+    this.update();
+  }
 
   /**
    * Returns all of the options configured for this {@link QRious}.
@@ -76,9 +75,9 @@ var QRious = Nevis.extend(function(options) {
    * @public
    * @memberof QRious#
    */
-  get: function() {
+  get() {
     return optionManager.getAll(this);
-  },
+  }
 
   /**
    * Sets all of the specified <code>options</code> and automatically updates this {@link QRious} if any of the
@@ -93,11 +92,11 @@ var QRious = Nevis.extend(function(options) {
    * @public
    * @memberof QRious#
    */
-  set: function(options) {
+  set(options) {
     if (optionManager.setAll(options, this)) {
       this.update();
     }
-  },
+  }
 
   /**
    * Returns the image data URI for the generated QR code using the <code>mime</code> provided.
@@ -107,9 +106,9 @@ var QRious = Nevis.extend(function(options) {
    * @public
    * @memberof QRious#
    */
-  toDataURL: function(mime) {
+  toDataURL(mime) {
     return this.canvas.toDataURL(mime || this.mime);
-  },
+  }
 
   /**
    * Updates this {@link QRious} by generating a new {@link Frame} and re-rendering the QR code.
@@ -118,7 +117,7 @@ var QRious = Nevis.extend(function(options) {
    * @protected
    * @memberof QRious#
    */
-  update: function() {
+  update() {
     var frame = new Frame({
       level: this.level,
       value: this.value
@@ -127,8 +126,6 @@ var QRious = Nevis.extend(function(options) {
     this._canvasRenderer.render(frame);
     this._imageRenderer.render(frame);
   }
-
-}, {
 
   /**
    * Configures the <code>service</code> provided to be used by all {@link QRious} instances.
@@ -140,11 +137,11 @@ var QRious = Nevis.extend(function(options) {
    * @static
    * @memberof QRious
    */
-  use: function(service) {
+  static use(service) {
     serviceManager.setService(service.getName(), service);
   }
 
-});
+}
 
 Object.defineProperties(QRious.prototype, {
 

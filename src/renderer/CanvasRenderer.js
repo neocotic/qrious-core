@@ -28,12 +28,12 @@ var Renderer = require('./Renderer');
  * @class
  * @extends Renderer
  */
-var CanvasRenderer = Renderer.extend({
+class CanvasRenderer extends Renderer {
 
   /**
    * @override
    */
-  draw: function(frame) {
+  draw(frame) {
     var i, j;
     var qrious = this.qrious;
     var moduleSize = this.getModuleSize(frame);
@@ -50,12 +50,12 @@ var CanvasRenderer = Renderer.extend({
         }
       }
     }
-  },
+  }
 
   /**
    * @override
    */
-  reset: function() {
+  reset() {
     var qrious = this.qrious;
     var context = this.element.getContext('2d');
     var size = qrious.size;
@@ -65,17 +65,17 @@ var CanvasRenderer = Renderer.extend({
     context.fillStyle = qrious.background;
     context.globalAlpha = qrious.backgroundAlpha;
     context.fillRect(0, 0, size, size);
-  },
+  }
 
   /**
    * @override
    */
-  resize: function() {
+  resize() {
     var element = this.element;
 
     element.width = element.height = this.qrious.size;
   }
 
-});
+}
 
 module.exports = CanvasRenderer;
