@@ -19,7 +19,8 @@
 
 'use strict';
 
-var Utilities = require('../util/Utilities');
+import Utilities from '../util/Utilities';
+import Option from './Option';
 
 /**
  * Manages multiple {@link Option} instances that are intended to be used by multiple implementations.
@@ -31,8 +32,9 @@ var Utilities = require('../util/Utilities');
  * @class
  */
 class OptionManager {
+  options: { [key: string] : Option };
 
-  constructor(options) {
+  constructor(options: Option[]) {
     /**
      * The available options for this {@link OptionManager}.
      *
@@ -42,7 +44,7 @@ class OptionManager {
      */
     this.options = {};
 
-    options.forEach(function(option) {
+    options.forEach((option) => {
       this.options[option.name] = option;
     }, this);
   }
@@ -56,7 +58,7 @@ class OptionManager {
    * @public
    * @memberof OptionManager#
    */
-  exists(name) {
+  exists(name: string): boolean {
     return this.options[name] != null;
   }
 
@@ -69,7 +71,7 @@ class OptionManager {
    * @public
    * @memberof OptionManager#
    */
-  get(name, target) {
+  get(name: string, target: Object): any {
     return OptionManager._get(this.options[name], target);
   }
 
@@ -81,7 +83,7 @@ class OptionManager {
    * @public
    * @memberof OptionManager#
    */
-  getAll(target) {
+  getAll(target: Object): { [key: string]: any } {
     var name;
     var options = this.options;
     var result = {};
@@ -118,11 +120,7 @@ class OptionManager {
    * @public
    * @memberof OptionManager#
    */
-  init(options, target, changeHandler) {
-    if (typeof changeHandler !== 'function') {
-      changeHandler = Utilities.noop;
-    }
-
+  init(options: { [key: string]: any }, target: Object, changeHandler: Function = () => {}) {
     var name, option;
 
     for (name in this.options) {
@@ -159,7 +157,7 @@ class OptionManager {
    * @public
    * @memberof OptionManager#
    */
-  set(name, value, target) {
+  set(name: string, value: any, target: Object) {
     return this._set(name, value, target);
   }
 
@@ -185,11 +183,11 @@ class OptionManager {
    * @public
    * @memberof OptionManager#
    */
-  setAll(options, target) {
+  setAll(options: { [key: string]: any }, target: Object) {
     return this._setAll(options, target);
   }
 
-  _set(name, value, target, allowUnmodifiable) {
+  _set(name: string, value: any, target: any, allowUnmodifiable: boolean) {
     var option = this.options[name];
     if (!option) {
       throw new Error('Invalid option: ' + name);
@@ -201,7 +199,7 @@ class OptionManager {
     return OptionManager._set(option, value, target);
   }
 
-  _setAll(options, target, allowUnmodifiable) {
+  _setAll(options: any, target: any, allowUnmodifiable: any) {
     if (!options) {
       return false;
     }
@@ -218,7 +216,7 @@ class OptionManager {
     return changed;
   }
 
-  static _createAccessor(option, target, changeHandler) {
+  static _createAccessor(option: any, target: any, changeHandler: any) {
     var descriptor = {
       get: function() {
         return OptionManager._get(option, target);
@@ -236,11 +234,11 @@ class OptionManager {
     Object.defineProperty(target, option.name, descriptor);
   }
 
-  static _get(option, target) {
+  static _get(option: any, target: any) {
     return target['_' + option.name];
   }
 
-  static _set(option, value, target) {
+  static _set(option: any, value: any, target: any) {
     var fieldName = '_' + option.name;
     var oldValue = target[fieldName];
     var newValue = option.transform(value != null ? value : option.defaultValue);
@@ -252,7 +250,7 @@ class OptionManager {
 
 }
 
-module.exports = OptionManager;
+export default OptionManager;
 
 /**
  * Called whenever the value of a modifiable {@link Option} is changed on a target object via the defined property's

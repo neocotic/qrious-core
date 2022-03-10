@@ -38,18 +38,21 @@
  * @param {Option~ValueTransformer} [valueTransformer] - the value transformer to be used
  * @public
  * @class
- * @extends Nevis
  */
 class Option {
+  /**
+   * The name for this {@link Option}.
+   *
+   * @public
+   * @type {string}
+   * @memberof Option#
+   */
+  name: string;
+  modifiable: boolean;
+  defaultValue: any;
+  private _valueTransformer: any;
 
-  constructor(name, modifiable, defaultValue, valueTransformer) {
-    /**
-     * The name for this {@link Option}.
-     *
-     * @public
-     * @type {string}
-     * @memberof Option#
-     */
+  constructor(name: string, modifiable: boolean = true, defaultValue?: any, valueTransformer?: any) {
     this.name = name;
 
     /**
@@ -84,7 +87,7 @@ class Option {
    * @public
    * @memberof Option#
    */
-  transform(value) {
+  transform(value: any) {
     var transformer = this._valueTransformer;
     if (typeof transformer === 'function') {
       return transformer(value, this);
@@ -95,7 +98,7 @@ class Option {
 
 }
 
-module.exports = Option;
+export default Option;
 
 /**
  * Returns a transformed value for the specified <code>value</code> to be applied for the <code>option</code> provided.

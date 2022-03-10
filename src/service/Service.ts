@@ -20,28 +20,34 @@
 'use strict';
 
 /**
- * Contains version pattern information.
+ * Defines a service contract that must be met by all implementations.
  *
  * @public
  * @class
- * @extends Nevis
  */
-const Version = {
+abstract class Service {
+  isCanvas(element: any) {
+    throw new Error('Method not implemented.');
+  }
+  createCanvas() {
+    throw new Error('Method not implemented.');
+  }
+  isImage(element: any) {
+    throw new Error('Method not implemented.');
+  }
+  createImage() {
+    throw new Error('Method not implemented.');
+  }
 
   /**
-   * The version pattern block.
+   * Returns the name of this {@link Service}.
    *
+   * @return {string} The service name.
    * @public
-   * @static
-   * @type {number[]}
-   * @memberof Version
+   * @memberof Service#
    */
-  BLOCK: [
-    0xc94, 0x5bc, 0xa99, 0x4d3, 0xbf6, 0x762, 0x847, 0x60d, 0x928, 0xb78, 0x45d, 0xa17, 0x532,
-    0x9a6, 0x683, 0x8c9, 0x7ec, 0xec4, 0x1e1, 0xfab, 0x08e, 0xc1a, 0x33f, 0xd75, 0x250, 0x9d5,
-    0x6f0, 0x8ba, 0x79f, 0xb0b, 0x42e, 0xa64, 0x541, 0xc69
-  ]
+  abstract getName(): string
 
-};
+}
 
-module.exports = Version;
+export default Service;

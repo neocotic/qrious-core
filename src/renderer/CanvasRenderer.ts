@@ -19,7 +19,7 @@
 
 'use strict';
 
-var Renderer = require('./Renderer');
+import Renderer from './Renderer';
 
 /**
  * An implementation of {@link Renderer} for working with <code>canvas</code> elements.
@@ -78,4 +78,4 @@ class CanvasRenderer extends Renderer {
 
 }
 
-module.exports = CanvasRenderer;
+export default CanvasRenderer;

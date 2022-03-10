@@ -19,24 +19,44 @@
 
 'use strict';
 
+import Renderer from './Renderer';
+
 /**
- * Defines a service contract that must be met by all implementations.
+ * An implementation of {@link Renderer} for working with <code>img</code> elements.
+ *
+ * This depends on {@link CanvasRenderer} being executed first as this implementation simply applies the data URL from
+ * the rendered <code>canvas</code> element as the <code>src</code> for the <code>img</code> element being rendered.
  *
  * @public
  * @class
+ * @extends Renderer
  */
-class Service {
+class ImageRenderer extends Renderer {
+  element: any;
 
   /**
-   * Returns the name of this {@link Service}.
-   *
-   * @return {string} The service name.
-   * @public
-   * @abstract
-   * @memberof Service#
+   * @override
    */
-  getName() {}
+  draw() {
+    this.element.src = this.qrious.toDataURL();
+  }
+
+  /**
+   * @override
+   */
+  reset() {
+    this.element.src = '';
+  }
+
+  /**
+   * @override
+   */
+  resize() {
+    var element = this.element;
+
+    element.width = element.height = this.qrious.size;
+  }
 
 }
 
-module.exports = Service;
+export default ImageRenderer;

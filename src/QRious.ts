@@ -19,13 +19,14 @@
 
 'use strict';
 
-var CanvasRenderer = require('./renderer/CanvasRenderer');
-var Frame = require('./Frame');
-var ImageRenderer = require('./renderer/ImageRenderer');
-var Option = require('./option/Option');
-var OptionManager = require('./option/OptionManager');
-var ServiceManager = require('./service/ServiceManager');
-var Utilities = require('./util/Utilities');
+import CanvasRenderer from './renderer/CanvasRenderer'
+import Frame from './Frame'
+import ImageRenderer from './renderer/ImageRenderer'
+import Option from './option/Option'
+import OptionManager from './option/OptionManager'
+import ServiceManager from './service/ServiceManager'
+import Utilities from './util/Utilities'
+import type Service from './service/Service';
 
 var optionManager = new OptionManager([
   new Option('background', true, 'white'),
@@ -50,8 +51,15 @@ var serviceManager = new ServiceManager();
  * @class
  */
 class QRious {
+  padding: number | undefined;
+  mime: string | undefined;
+  _canvasRenderer: CanvasRenderer;
+  _imageRenderer: ImageRenderer;
+  canvas: any;
+  level: string | undefined;
+  value: string | undefined;
 
-  constructor(options) {
+  constructor(options: any) {
     optionManager.init(options, this, this.update.bind(this));
 
     var element = optionManager.get('element', this);
@@ -92,7 +100,7 @@ class QRious {
    * @public
    * @memberof QRious#
    */
-  set(options) {
+  set(options: any) {
     if (optionManager.setAll(options, this)) {
       this.update();
     }
@@ -106,7 +114,7 @@ class QRious {
    * @public
    * @memberof QRious#
    */
-  toDataURL(mime) {
+  toDataURL(mime?: string) {
     return this.canvas.toDataURL(mime || this.mime);
   }
 
@@ -137,7 +145,7 @@ class QRious {
    * @static
    * @memberof QRious
    */
-  static use(service) {
+  static use(service: Service) {
     serviceManager.setService(service.getName(), service);
   }
 
@@ -175,7 +183,7 @@ Object.defineProperties(QRious.prototype, {
 
 });
 
-module.exports = QRious;
+export default QRious;
 
 /**
  * The options used by {@link QRious}.

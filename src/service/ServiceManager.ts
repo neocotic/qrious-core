@@ -19,6 +19,8 @@
 
 'use strict';
 
+import type Service from "./Service"
+
 /**
  * A basic manager for {@link Service} implementations that are mapped to simple names.
  *
@@ -26,6 +28,7 @@
  * @class
  */
 class ServiceManager {
+  private _services: { [key: string]: Service };
 
   constructor() {
     this._services = {};
@@ -40,7 +43,7 @@ class ServiceManager {
    * @public
    * @memberof ServiceManager#
    */
-  getService(name) {
+  getService(name: string) {
     var service = this._services[name];
     if (!service) {
       throw new Error('Service is not being managed with name: ' + name);
@@ -60,7 +63,7 @@ class ServiceManager {
    * @public
    * @memberof ServiceManager#
    */
-  setService(name, service) {
+  setService(name: string, service: Service) {
     if (this._services[name]) {
       throw new Error('Service is already managed with name: ' + name);
     }
@@ -72,4 +75,4 @@ class ServiceManager {
 
 }
 
-module.exports = ServiceManager;
+export default ServiceManager;

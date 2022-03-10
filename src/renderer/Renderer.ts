@@ -19,6 +19,9 @@
 
 'use strict';
 
+import type QRious from "../QRious";
+import type Frame from "../Frame";
+
 /**
  * Responsible for rendering a QR code {@link Frame} on a specific type of element.
  *
@@ -35,15 +38,18 @@
  * @extends Nevis
  */
 class Renderer {
+  /**
+   * The {@link QRious} instance.
+   *
+   * @protected
+   * @type {QRious}
+   * @memberof Renderer#
+   */
+  qrious: QRious;
+  element: any;
+  enabled: boolean;
 
-  constructor(qrious, element, enabled) {
-    /**
-     * The {@link QRious} instance.
-     *
-     * @protected
-     * @type {QRious}
-     * @memberof Renderer#
-     */
+  constructor(qrious: QRious, element: any, enabled: boolean) {
     this.qrious = qrious;
 
     /**
@@ -77,7 +83,7 @@ class Renderer {
    * @abstract
    * @memberof Renderer#
    */
-  draw(frame) {}
+  draw(frame: Frame) {}
 
   /**
    * Returns the element onto which this {@link Renderer} is rendering the QR code.
@@ -113,7 +119,7 @@ class Renderer {
    * @protected
    * @memberof Renderer#
    */
-  getModuleSize(frame) {
+  getModuleSize(frame: Frame): number {
     var qrious = this.qrious;
     var padding = qrious.padding || 0;
     var pixels = Math.floor((qrious.size - (padding * 2)) / frame.width);
@@ -134,7 +140,7 @@ class Renderer {
    * @protected
    * @memberof Renderer#
    */
-  getOffset(frame) {
+  getOffset(frame: Frame): number {
     var qrious = this.qrious;
     var padding = qrious.padding;
 
@@ -156,7 +162,7 @@ class Renderer {
    * @public
    * @memberof Renderer#
    */
-  render(frame) {
+  render(frame: Frame): void {
     if (this.enabled) {
       this.resize();
       this.reset();
@@ -190,4 +196,4 @@ class Renderer {
 
 }
 
-module.exports = Renderer;
+export default Renderer;

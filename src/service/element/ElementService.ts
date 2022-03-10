@@ -19,7 +19,7 @@
 
 'use strict';
 
-var Service = require('../Service');
+import Service from '../Service';
 
 /**
  * A service for working with elements.
@@ -28,7 +28,7 @@ var Service = require('../Service');
  * @class
  * @extends Service
  */
-class ElementService extends Service {
+abstract class ElementService extends Service {
 
   /**
    * Creates an instance of a canvas element.
@@ -52,7 +52,7 @@ class ElementService extends Service {
    * @abstract
    * @memberof ElementService#
    */
-  createImage() {}
+  abstract createImage(): any
 
   /**
    * @override
@@ -72,7 +72,7 @@ class ElementService extends Service {
    * @abstract
    * @memberof ElementService#
    */
-  isCanvas(element) {}
+  abstract isCanvas(element: any): boolean
 
   /**
    * Returns whether the specified <code>element</code> is an image.
@@ -85,8 +85,8 @@ class ElementService extends Service {
    * @abstract
    * @memberof ElementService#
    */
-  isImage(element) {}
+  abstract isImage(element: any): boolean
 
 }
 
-module.exports = ElementService;
+export default ElementService;

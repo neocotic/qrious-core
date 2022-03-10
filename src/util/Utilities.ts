@@ -40,7 +40,7 @@ class Utilities {
    * @static
    * @memberof Utilities
    */
-  static abs(value) {
+  static abs(value: number): number | null {
     return value != null ? Math.abs(value) : null;
   }
 
@@ -55,7 +55,7 @@ class Utilities {
    * @static
    * @memberof Utilities
    */
-  static hasOwn(object, name) {
+  static hasOwn(object: Object, name: string): boolean {
     return Object.prototype.hasOwnProperty.call(object, name);
   }
 
@@ -67,7 +67,7 @@ class Utilities {
    * @static
    * @memberof Utilities
    */
-  static noop() {}
+  static noop(): void {}
 
   /**
    * Transforms the specified <code>string</code> to upper case while remaining null-safe.
@@ -78,10 +78,10 @@ class Utilities {
    * @static
    * @memberof Utilities
    */
-  static toUpperCase(string) {
+  static toUpperCase(string: string | null): string | null {
     return string != null ? string.toUpperCase() : null;
   }
 
 }
 
-module.exports = Utilities;
+export default Utilities;

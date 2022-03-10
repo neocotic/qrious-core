@@ -19,22 +19,46 @@
 
 'use strict';
 
-var Alignment = require('./Alignment');
-var ErrorCorrection = require('./ErrorCorrection');
-var Galois = require('./Galois');
-var Version = require('./Version');
+import Alignment from './Alignment'
+import ErrorCorrection from './ErrorCorrection'
+import Galois from './Galois'
+import Version from './Version'
+
+/**
+ * The options used by {@link Frame}.
+ */
+interface FrameOptions {
+  /** The value to be encoded. */
+  value: string;
+  /** The ECC level to be used. */
+  level: string;
+}
 
 /**
  * Generates information for a QR code frame based on a specific value to be encoded.
  *
- * @param {Frame~Options} options - the options to be used
+ * @param {FrameOptions} options - the options to be used
  * @public
  * @class
  * @extends Nevis
  */
 class Frame {
+  private _version: number;
+  private _value: string;
+  buffer: number[];
+  private _badness: any[];
+  private _level: number;
+  private _polynomial: any[];
+  private _stringBuffer: any[]
+  _dataBlock: number | undefined;
+  _eccBlock: number | undefined;
+  _neccBlock1: number | undefined;
+  _neccBlock2: number | undefined;
+  width: number;
+  _ecc: number[];
+  _mask: number[];
 
-  constructor(options) {
+  constructor(options: FrameOptions) {
     var dataBlock, eccBlock, index, neccBlock1, neccBlock2;
     var valueLength = options.value.length;
 
@@ -108,7 +132,7 @@ class Frame {
     this._finish();
   }
 
-  _addAlignment(x, y) {
+  _addAlignment(x: number, y: number) {
     var i;
     var buffer = this.buffer;
     var width = this.width;
@@ -155,6 +179,9 @@ class Frame {
 
       stringBuffer[ecc + eccLength - 1] = bit === 255 ? 0 : Galois.EXPONENT[Frame._modN(bit + polynomial[0])];
     }
+  }
+  static _modN(arg0: any) {
+    throw new Error('Method not implemented.');
   }
 
   _appendEccToData() {
@@ -864,7 +891,7 @@ class Frame {
     return array;
   }
 
-  static _getMaskBit(x, y) {
+  static _getMaskBit(x: number, y: number) {
     var bit;
 
     if (x > y) {
@@ -881,7 +908,7 @@ class Frame {
     return bit;
   }
 
-  static modN(x) {
+  static modN(x: number) {
     while (x >= 255) {
       x -= 255;
       x = (x >> 8) + (x & 255);
@@ -909,12 +936,4 @@ class Frame {
 
 }
 
-module.exports = Frame;
-
-/**
- * The options used by {@link Frame}.
- *
- * @typedef {Object} Frame~Options
- * @property {string} level - The ECC level to be used.
- * @property {string} value - The value to be encoded.
- */
+export default Frame;
