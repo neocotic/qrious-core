@@ -32,8 +32,6 @@ import Renderer from './Renderer';
  * @extends Renderer
  */
 class ImageRenderer extends Renderer {
-  element: any;
-
   /**
    * @override
    */
@@ -54,7 +52,7 @@ class ImageRenderer extends Renderer {
   resize() {
     var element = this.element;
 
-    element.width = element.height = this.qrious.size;
+    element.width = element.height = this.qrious.options.size;
   }
 
 }

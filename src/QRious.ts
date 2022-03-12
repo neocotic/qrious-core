@@ -17,29 +17,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 import CanvasRenderer from './renderer/CanvasRenderer'
 import Frame from './Frame'
 import ImageRenderer from './renderer/ImageRenderer'
-import Option from './option/Option'
-import OptionManager from './option/OptionManager'
 import ServiceManager from './service/ServiceManager'
-import Utilities from './util/Utilities'
 import type Service from './service/Service';
+import type { Level } from "./ErrorCorrection"
 
-var optionManager = new OptionManager([
-  new Option('background', true, 'white'),
-  new Option('backgroundAlpha', true, 1, Utilities.abs),
-  new Option('element'),
-  new Option('foreground', true, 'black'),
-  new Option('foregroundAlpha', true, 1, Utilities.abs),
-  new Option('level', true, 'L', Utilities.toUpperCase),
-  new Option('mime', true, 'image/png'),
-  new Option('padding', true, null, Utilities.abs),
-  new Option('size', true, 100, Utilities.abs),
-  new Option('value', true, '')
-]);
+interface QRiousOptions {
+  background: string;
+  backgroundAlpha: number;
+  element: HTMLCanvasElement;
+  foreground: string;
+  foregroundAlpha: number;
+  level: Level;
+  mime: string;
+  padding: null | number;
+  size: number;
+  value: string;
+}
+
+const generateDefaultOptions = (): Partial<QRiousOptions> => ({
+  background: "white",
+  backgroundAlpha: 1,
+  foreground: "black",
+  foregroundAlpha: 1,
+  level: "L",
+  mime: "image/png",
+  padding: null,
+  size: 100,
+  value: ""
+})
+
 var serviceManager = new ServiceManager();
 
 /**
@@ -55,14 +64,12 @@ class QRious {
   mime: string | undefined;
   _canvasRenderer: CanvasRenderer;
   _imageRenderer: ImageRenderer;
-  canvas: any;
-  level: string | undefined;
-  value: string | undefined;
+  private _options: QRiousOptions 
 
-  constructor(options: any) {
-    optionManager.init(options, this, this.update.bind(this));
+  constructor(options: QRiousOptions) {
+    this._options = Object.assign(generateDefaultOptions(), options)
 
-    var element = optionManager.get('element', this);
+    var element = options.element as any
     var elementService = serviceManager.getService('element');
     var canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
     var image = element && elementService.isImage(element) ? element : elementService.createImage();
@@ -73,48 +80,25 @@ class QRious {
     this.update();
   }
 
-  /**
-   * Returns all of the options configured for this {@link QRious}.
-   *
-   * Any changes made to the returned object will not be reflected in the options themselves or their corresponding
-   * underlying fields.
-   *
-   * @return {Object.<string, *>} A copy of the applied options.
-   * @public
-   * @memberof QRious#
-   */
-  get() {
-    return optionManager.getAll(this);
+  get options(): QRiousOptions {
+    return this._options
   }
 
-  /**
-   * Sets all of the specified <code>options</code> and automatically updates this {@link QRious} if any of the
-   * underlying fields are changed as a result.
-   *
-   * This is the preferred method for updating multiple options at one time to avoid unnecessary updates between
-   * changes.
-   *
-   * @param {QRious~Options} options - the options to be set
-   * @return {void}
-   * @throws {Error} If any <code>options</code> are invalid or cannot be modified.
-   * @public
-   * @memberof QRious#
-   */
-  set(options: any) {
-    if (optionManager.setAll(options, this)) {
-      this.update();
-    }
+  change(value: Partial<QRiousOptions>) {
+    this._options = Object.assign(this._options, value)
+
+    this.update()
   }
 
   /**
    * Returns the image data URI for the generated QR code using the <code>mime</code> provided.
    *
-   * @param {string} [mime] - the MIME type for the image
-   * @return {string} The image data URI for the QR code.
+   * @param [mime] - the MIME type for the image
+   * @return The image data URI for the QR code.
    * @public
    * @memberof QRious#
    */
-  toDataURL(mime?: string) {
+  toDataURL(mime?: string): string {
     return this.canvas.toDataURL(mime || this.mime);
   }
 
@@ -127,12 +111,36 @@ class QRious {
    */
   update() {
     var frame = new Frame({
-      level: this.level,
-      value: this.value
+      level: this.options.level,
+      value: this.options.value
     });
 
     this._canvasRenderer.render(frame);
     this._imageRenderer.render(frame);
+  }
+
+  /**
+   * Returns the <code>canvas</code> element being used to render the QR code for this {@link QRious}.
+   *
+   * @return {*} The <code>canvas</code> element.
+   * @public
+   * @memberof QRious#
+   * @alias canvas
+   */
+  get canvas() {
+    return this._canvasRenderer.getElement();
+  }
+
+  /**
+   * Returns the <code>img</code> element being used to render the QR code for this {@link QRious}.
+   *
+   * @return {*} The <code>img</code> element.
+   * @public
+   * @memberof QRious#
+   * @alias image
+   */
+   get image() {
+    return this._imageRenderer.getElement();
   }
 
   /**
@@ -150,38 +158,6 @@ class QRious {
   }
 
 }
-
-Object.defineProperties(QRious.prototype, {
-
-  canvas: {
-    /**
-     * Returns the <code>canvas</code> element being used to render the QR code for this {@link QRious}.
-     *
-     * @return {*} The <code>canvas</code> element.
-     * @public
-     * @memberof QRious#
-     * @alias canvas
-     */
-    get: function() {
-      return this._canvasRenderer.getElement();
-    }
-  },
-
-  image: {
-    /**
-     * Returns the <code>img</code> element being used to render the QR code for this {@link QRious}.
-     *
-     * @return {*} The <code>img</code> element.
-     * @public
-     * @memberof QRious#
-     * @alias image
-     */
-    get: function() {
-      return this._imageRenderer.getElement();
-    }
-  }
-
-});
 
 export default QRious;
 

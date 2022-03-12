@@ -17,14 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /**
  * Contains version pattern information.
  *
  * @public
  * @class
- * @extends Nevis
  */
 const Version = {
 

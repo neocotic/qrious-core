@@ -17,10 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 import Alignment from './Alignment'
-import ErrorCorrection from './ErrorCorrection'
+import ErrorCorrection, { Level } from './ErrorCorrection'
 import Galois from './Galois'
 import Version from './Version'
 
@@ -31,7 +29,7 @@ interface FrameOptions {
   /** The value to be encoded. */
   value: string;
   /** The ECC level to be used. */
-  level: string;
+  level: Level;
 }
 
 /**
@@ -154,7 +152,7 @@ class Frame {
     }
   }
 
-  _appendData(data, dataLength, ecc, eccLength) {
+  _appendData(data: number, dataLength: number, ecc: number, eccLength: number) {
     var bit, i, j;
     var polynomial = this._polynomial;
     var stringBuffer = this._stringBuffer;
@@ -206,7 +204,7 @@ class Frame {
     }
   }
 
-  _applyMask(mask) {
+  _applyMask(mask: number) {
     var r3x, r3y, x, y;
     var buffer = this.buffer;
     var width = this.width;
@@ -453,7 +451,7 @@ class Frame {
     return bad;
   }
 
-  _convertBitStream(length) {
+  _convertBitStream(length: number) {
     var bit, i;
     var ecc = this._ecc;
     var version = this._version;
@@ -515,7 +513,7 @@ class Frame {
     }
   }
 
-  _getBadness(length) {
+  _getBadness(length: number) {
     var i;
     var badRuns = 0;
     var badness = this._badness;

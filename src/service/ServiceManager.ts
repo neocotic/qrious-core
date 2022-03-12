@@ -43,7 +43,7 @@ class ServiceManager {
    * @public
    * @memberof ServiceManager#
    */
-  getService(name: string) {
+  getService(name: string): Service {
     var service = this._services[name];
     if (!service) {
       throw new Error('Service is not being managed with name: ' + name);
@@ -63,7 +63,7 @@ class ServiceManager {
    * @public
    * @memberof ServiceManager#
    */
-  setService(name: string, service: Service) {
+  setService(name: string, service: Service): void {
     if (this._services[name]) {
       throw new Error('Service is already managed with name: ' + name);
     }

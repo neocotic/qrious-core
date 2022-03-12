@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /* eslint no-multi-spaces: "off" */
+
+export type Level = "L" | "M" | "Q" | "H"
 
 /**
  * Contains error correction information.
@@ -114,7 +114,7 @@ const ErrorCorrection = {
    * @type {Object.<string, number>}
    * @memberof ErrorCorrection
    */
-  get LEVELS(): { [key: string]: number } {
+  get LEVELS(): { [key in Level]: number } {
     return {
       L: 1,
       M: 2,

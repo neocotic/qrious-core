@@ -35,9 +35,8 @@ import type Frame from "../Frame";
  * @param {boolean} [enabled] - <code>true</code> this {@link Renderer} is enabled; otherwise <code>false</code>.
  * @public
  * @class
- * @extends Nevis
  */
-class Renderer {
+abstract class Renderer {
   /**
    * The {@link QRious} instance.
    *
@@ -83,7 +82,7 @@ class Renderer {
    * @abstract
    * @memberof Renderer#
    */
-  draw(frame: Frame) {}
+  abstract draw(frame: Frame): void
 
   /**
    * Returns the element onto which this {@link Renderer} is rendering the QR code.
@@ -180,7 +179,7 @@ class Renderer {
    * @abstract
    * @memberof Renderer#
    */
-  reset() {}
+  abstract reset(): void
 
   /**
    * Ensures that the size of the underlying element matches that defined on the associated {@link QRious} instance.
@@ -192,7 +191,7 @@ class Renderer {
    * @abstract
    * @memberof Renderer#
    */
-  resize() {}
+  abstract resize(): void
 
 }
 

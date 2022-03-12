@@ -17,9 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 import Renderer from './Renderer';
+import Frame from '../Frame';
 
 /**
  * An implementation of {@link Renderer} for working with <code>canvas</code> elements.
@@ -33,15 +32,15 @@ class CanvasRenderer extends Renderer {
   /**
    * @override
    */
-  draw(frame) {
+  draw(frame: Frame) {
     var i, j;
     var qrious = this.qrious;
     var moduleSize = this.getModuleSize(frame);
     var offset = this.getOffset(frame);
     var context = this.element.getContext('2d');
 
-    context.fillStyle = qrious.foreground;
-    context.globalAlpha = qrious.foregroundAlpha;
+    context.fillStyle = qrious.options.foreground;
+    context.globalAlpha = qrious.options.foregroundAlpha;
 
     for (i = 0; i < frame.width; i++) {
       for (j = 0; j < frame.width; j++) {
@@ -58,12 +57,12 @@ class CanvasRenderer extends Renderer {
   reset() {
     var qrious = this.qrious;
     var context = this.element.getContext('2d');
-    var size = qrious.size;
+    var size = qrious.options.size;
 
     context.lineWidth = 1;
     context.clearRect(0, 0, size, size);
-    context.fillStyle = qrious.background;
-    context.globalAlpha = qrious.backgroundAlpha;
+    context.fillStyle = qrious.options.background;
+    context.globalAlpha = qrious.options.backgroundAlpha;
     context.fillRect(0, 0, size, size);
   }
 
@@ -73,7 +72,7 @@ class CanvasRenderer extends Renderer {
   resize() {
     var element = this.element;
 
-    element.width = element.height = this.qrious.size;
+    element.width = element.height = this.qrious.options.size;
   }
 
 }
