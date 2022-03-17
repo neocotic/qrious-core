@@ -20,7 +20,7 @@
 import * as Alignment from './Alignment'
 import * as ErrorCorrection from './ErrorCorrection'
 import * as Galois from './Galois'
-import Version from './Version'
+import * as Version from './Version'
 
 /**
  * The options used by {@link Frame}.
@@ -54,8 +54,8 @@ class Frame {
   _mask: number[];
 
   constructor(options: FrameOptions) {
-    var dataBlock = 0, eccBlock = 0, index = 0, neccBlock1 = 0, neccBlock2 = 0;
-    var valueLength = options.value.length;
+    let dataBlock = 0, eccBlock = 0, index = 0, neccBlock1 = 0, neccBlock2 = 0;
+    const valueLength = options.value.length;
 
     this._badness = [];
     this._level = ErrorCorrection.LEVELS[options.level];
@@ -127,9 +127,9 @@ class Frame {
   }
 
   _addAlignment(x: number, y: number) {
-    var i;
-    var buffer = this.buffer;
-    var width = this.width;
+    let i;
+    const buffer = this.buffer;
+    const width = this.width;
 
     buffer[x + (width * y)] = 1;
 
@@ -149,9 +149,9 @@ class Frame {
   }
 
   _appendData(data: number, dataLength: number, ecc: number, eccLength: number) {
-    var bit, i, j;
-    var polynomial = this._polynomial;
-    var stringBuffer = this._stringBuffer;
+    let bit, i, j;
+    const polynomial = this._polynomial;
+    const stringBuffer = this._stringBuffer;
 
     for (i = 0; i < eccLength; i++) {
       stringBuffer[ecc + i] = 0;
@@ -176,11 +176,11 @@ class Frame {
   }
 
   _appendEccToData() {
-    var i;
-    var data = 0;
-    var dataBlock = this._dataBlock;
-    var ecc = this._calculateMaxLength();
-    var eccBlock = this._eccBlock;
+    let i;
+    let data = 0;
+    let dataBlock = this._dataBlock;
+    let ecc = this._calculateMaxLength();
+    const eccBlock = this._eccBlock;
 
     for (i = 0; i < this._neccBlock1; i++) {
       this._appendData(data, dataBlock, ecc, eccBlock);
@@ -198,9 +198,9 @@ class Frame {
   }
 
   _applyMask(mask: number) {
-    var r3x, r3y, x, y;
-    var buffer = this.buffer;
-    var width = this.width;
+    let r3x, r3y, x, y;
+    const buffer = this.buffer;
+    const width = this.width;
 
     switch (mask) {
     case 0:
@@ -332,9 +332,9 @@ class Frame {
   }
 
   _calculatePolynomial() {
-    var i, j;
-    var eccBlock = this._eccBlock;
-    var polynomial = this._polynomial;
+    let i, j;
+    const eccBlock = this._eccBlock;
+    const polynomial = this._polynomial;
 
     polynomial[0] = 1;
 
@@ -356,11 +356,11 @@ class Frame {
   }
 
   _checkBadness() {
-    var b, b1, h, x, y;
-    var bad = 0;
-    var badness = this._badness;
-    var buffer = this.buffer;
-    var width = this.width;
+    let b, b1, h, x, y;
+    let bad = 0;
+    const badness = this._badness;
+    const buffer = this.buffer;
+    const width = this.width;
 
     // Blocks of same colour.
     for (y = 0; y < width - 1; y++) {
@@ -380,7 +380,7 @@ class Frame {
       }
     }
 
-    var bw = 0;
+    let bw = 0;
 
     // X runs.
     for (y = 0; y < width; y++) {
@@ -408,8 +408,8 @@ class Frame {
       bw = -bw;
     }
 
-    var count = 0;
-    var big = bw;
+    let count = 0;
+    let big = bw;
     big += big << 2;
     big <<= 1;
 
@@ -445,17 +445,17 @@ class Frame {
   }
 
   _convertBitStream(length: number) {
-    var bit, i;
-    var ecc = this._ecc;
-    var version = this._version;
+    let bit, i;
+    const ecc = this._ecc;
+    const version = this._version;
 
     // Convert string to bit stream. 8-bit data to QR-coded 8-bit data (numeric, alphanumeric, or kanji not supported).
     for (i = 0; i < length; i++) {
       ecc[i] = this._value.charCodeAt(i);
     }
 
-    var stringBuffer = this._stringBuffer = ecc.slice();
-    var maxLength = this._calculateMaxLength();
+    const stringBuffer = this._stringBuffer = ecc.slice();
+    const maxLength = this._calculateMaxLength();
 
     if (length >= maxLength - 2) {
       length = maxLength - 2;
@@ -466,7 +466,7 @@ class Frame {
     }
 
     // Shift and re-pack to insert length prefix.
-    var index = length;
+    let index = length;
 
     if (version > 9) {
       stringBuffer[index + 2] = 0;
@@ -507,9 +507,9 @@ class Frame {
   }
 
   _getBadness(length: number) {
-    var i;
-    var badRuns = 0;
-    var badness = this._badness;
+    let i;
+    let badRuns = 0;
+    const badness = this._badness;
 
     for (i = 0; i <= length; i++) {
       if (badness[i] >= 5) {
@@ -538,9 +538,9 @@ class Frame {
     // Save pre-mask copy of frame.
     this._stringBuffer = this.buffer.slice();
 
-    var currentMask, i;
-    var bit = 0;
-    var mask = 30000;
+    let currentMask, i;
+    let bit = 0;
+    let mask = 30000;
 
     /*
      * Using for instead of while since in original Arduino code if an early mask was "good enough" it wouldn't try for
@@ -575,8 +575,8 @@ class Frame {
     // Add in final mask/ECC level bytes.
     mask = ErrorCorrection.FINAL_FORMAT[bit + (this._level - 1 << 3)];
 
-    var buffer = this.buffer;
-    var width = this.width;
+    const buffer = this.buffer;
+    const width = this.width;
 
     // Low byte.
     for (i = 0; i < 8; i++, mask >>= 1) {
@@ -606,15 +606,15 @@ class Frame {
   }
 
   _interleaveBlocks() {
-    var i, j;
-    var dataBlock = this._dataBlock;
-    var ecc = this._ecc;
-    var eccBlock = this._eccBlock;
-    var k = 0;
-    var maxLength = this._calculateMaxLength();
-    var neccBlock1 = this._neccBlock1;
-    var neccBlock2 = this._neccBlock2;
-    var stringBuffer = this._stringBuffer;
+    let i, j;
+    let dataBlock = this._dataBlock;
+    let ecc = this._ecc;
+    let eccBlock = this._eccBlock;
+    let k = 0;
+    let maxLength = this._calculateMaxLength();
+    let neccBlock1 = this._neccBlock1;
+    let neccBlock2 = this._neccBlock2;
+    let stringBuffer = this._stringBuffer;
 
     for (i = 0; i < dataBlock; i++) {
       for (j = 0; j < neccBlock1; j++) {
@@ -640,9 +640,9 @@ class Frame {
   }
 
   _insertAlignments() {
-    var i, x, y;
-    var version = this._version;
-    var width = this.width;
+    let i, x, y;
+    let version = this._version;
+    let width = this.width;
 
     if (version > 1) {
       i = Alignment.BLOCK[version];
@@ -674,9 +674,9 @@ class Frame {
   }
 
   _insertFinders() {
-    var i, j, x, y;
-    var buffer = this.buffer;
-    var width = this.width;
+    let i, j, x, y;
+    let buffer = this.buffer;
+    let width = this.width;
 
     for (i = 0; i < 3; i++) {
       j = 0;
@@ -715,8 +715,8 @@ class Frame {
   }
 
   _insertTimingGap() {
-    var x, y;
-    var width = this.width;
+    let x, y;
+    let width = this.width;
 
     for (y = 0; y < 7; y++) {
       this._setMask(7, y);
@@ -732,9 +732,9 @@ class Frame {
   }
 
   _insertTimingRowAndColumn() {
-    var x;
-    var buffer = this.buffer;
-    var width = this.width;
+    let x;
+    let buffer = this.buffer;
+    let width = this.width;
 
     for (x = 0; x < width - 14; x++) {
       if (x & 1) {
@@ -748,10 +748,10 @@ class Frame {
   }
 
   _insertVersion() {
-    var i, j, x, y;
-    var buffer = this.buffer;
-    var version = this._version;
-    var width = this.width;
+    let i, j, x, y;
+    let buffer = this.buffer;
+    let version = this._version;
+    let width = this.width;
 
     if (version > 6) {
       i = Version.BLOCK[version - 7];
@@ -772,21 +772,21 @@ class Frame {
   }
 
   _isMasked(x: number, y: number) {
-    var bit = Frame._getMaskBit(x, y);
+    let bit = Frame._getMaskBit(x, y);
 
     return this._mask[bit] === 1;
   }
 
   _pack() {
-    var bit, i, j;
-    var k = 1;
-    var v = 1;
-    var width = this.width;
-    var x = width - 1;
-    var y = width - 1;
+    let bit, i, j;
+    let k = 1;
+    let v = 1;
+    let width = this.width;
+    let x = width - 1;
+    let y = width - 1;
 
     // Interleaved data and ECC codes.
-    var length = ((this._dataBlock + this._eccBlock) * (this._neccBlock1 + this._neccBlock2)) + this._neccBlock2;
+    let length = ((this._dataBlock + this._eccBlock) * (this._neccBlock1 + this._neccBlock2)) + this._neccBlock2;
 
     for (i = 0; i < length; i++) {
       bit = this._stringBuffer[i];
@@ -835,8 +835,8 @@ class Frame {
   }
 
   _reverseMask() {
-    var x, y;
-    var width = this.width;
+    let x, y;
+    let width = this.width;
 
     for (x = 0; x < 9; x++) {
       this._setMask(x, 8);
@@ -853,14 +853,14 @@ class Frame {
   }
 
   _setMask(x: number, y: number) {
-    var bit = Frame._getMaskBit(x, y);
+    let bit = Frame._getMaskBit(x, y);
 
     this._mask[bit] = 1;
   }
 
   _syncMask() {
-    var x, y;
-    var width = this.width;
+    let x, y;
+    let width = this.width;
 
     for (y = 0; y < width; y++) {
       for (x = 0; x <= y; x++) {
@@ -872,8 +872,8 @@ class Frame {
   }
 
   static _createArray(length: number) {
-    var i;
-    var array = [];
+    let i;
+    let array = [];
 
     for (i = 0; i < length; i++) {
       array[i] = 0;
@@ -883,7 +883,7 @@ class Frame {
   }
 
   static _getMaskBit(x: number, y: number) {
-    var bit;
+    let bit;
 
     if (x > y) {
       bit = x;

@@ -6,3 +6,4 @@
 * Michael Mason
 * Benjamin Besse <contact@throrinstudio.com>
 * Marek Vavrecan <vavrecan@gmail.com>
+* Tristan F. <leodog896@gmail.com>

@@ -8,6 +8,7 @@
   },
   "rules": {
     "no-var": "error",
+    "prefer-const": "error",
     "max-params": [
       "error",
       5

@@ -19,6 +19,7 @@
 
 import CanvasRenderer from './renderer/CanvasRenderer'
 import Frame from './Frame'
+import { QRiousElement } from "./renderer/Renderer"
 import ImageRenderer from './renderer/ImageRenderer'
 import ServiceManager from './service/ServiceManager'
 import type Service from './service/Service';
@@ -62,15 +63,13 @@ const generateDefaultOptions = (): Partial<QRiousOptions> => ({
   value: ""
 })
 
-var serviceManager = new ServiceManager();
+let serviceManager = new ServiceManager();
 
 /**
  * Enables configuration of a QR code generator which uses HTML5 <code>canvas</code> for rendering.
  *
  * @param {QRious~Options} [options] - the options to be used
  * @throws {Error} If any <code>options</code> are invalid.
- * @public
- * @class
  */
 class QRious {
   padding: number | undefined;
@@ -82,10 +81,10 @@ class QRious {
   constructor(options: QRiousOptions) {
     this._options = Object.assign(generateDefaultOptions(), options)
 
-    var element = options.element as any
-    var elementService = serviceManager.getService('element');
-    var canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
-    var image = element && elementService.isImage(element) ? element : elementService.createImage();
+    let element = options.element as any
+    let elementService = serviceManager.getService('element');
+    let canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
+    let image = element && elementService.isImage(element) ? element : elementService.createImage();
 
     this._canvasRenderer = new CanvasRenderer(this, canvas, true);
     this._imageRenderer = new ImageRenderer(this, image, image === element);
@@ -120,7 +119,7 @@ class QRious {
    * @memberof QRious#
    */
   protected update(): void {
-    var frame = new Frame({
+    const frame = new Frame({
       level: this.options.level,
       value: this.options.value
     });
@@ -134,7 +133,7 @@ class QRious {
    *
    * @return The <code>canvas</code> element.
    */
-  get canvas(): any {
+  get canvas(): QRiousElement<HTMLCanvasElement> {
     return this._canvasRenderer.getElement();
   }
 
@@ -143,7 +142,7 @@ class QRious {
    *
    * @return The <code>img</code> element.
    */
-   get image(): any {
+   get image(): QRiousElement<HTMLImageElement> {
     return this._imageRenderer.getElement();
   }
 
@@ -154,7 +153,7 @@ class QRious {
    * @throws {Error} If a {@link Service} has already been configured with the same name.
    */
   static use(service: Service): void {
-    serviceManager.setService(service.getName(), service);
+    serviceManager.setService(service.name, service);
   }
 
 }

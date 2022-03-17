@@ -17,13 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /**
  * Defines a service contract that must be met by all implementations.
- *
- * @public
- * @class
  */
 abstract class Service {
   isCanvas(element: any) {
@@ -44,7 +39,7 @@ abstract class Service {
    *
    * @return The service name.
    */
-  abstract getName(): string
+  abstract get name(): string
 
 }
 

@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 import type Service from "./Service"
 
 /**
@@ -42,7 +40,7 @@ class ServiceManager {
    * @throws {Error} If no {@link Service} is being managed with <code>name</code>.
    */
   getService(name: string): Service {
-    var service = this._services[name];
+    let service = this._services[name];
     if (!service) {
       throw new Error('Service is not being managed with name: ' + name);
     }

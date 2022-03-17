@@ -25,7 +25,7 @@ import Renderer from './Renderer';
  * This depends on {@link CanvasRenderer} being executed first as this implementation simply applies the data URL from
  * the rendered <code>canvas</code> element as the <code>src</code> for the <code>img</code> element being rendered.
  */
-class ImageRenderer extends Renderer {
+class ImageRenderer extends Renderer<HTMLImageElement> {
   override draw() {
     this.element.src = this.qrious.toDataURL();
   }
@@ -35,9 +35,7 @@ class ImageRenderer extends Renderer {
   }
 
   override resize() {
-    var element = this.element;
-
-    element.width = element.height = this.qrious.options.size;
+    this.element.width = this.element.height = this.qrious.options.size;
   }
 
 }

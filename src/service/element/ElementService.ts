@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 import Service from '../Service';
 
 /**
@@ -47,8 +45,8 @@ abstract class ElementService extends Service {
    * @return The newly created image element.
    */
   abstract createImage(): any
-  
-  override getName() {
+
+  override get name() {
     return 'element';
   }
 

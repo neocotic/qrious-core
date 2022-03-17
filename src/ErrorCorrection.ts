@@ -88,11 +88,6 @@ export const FINAL_FORMAT: number[] = [
 
 /**
  * A map of human-readable ECC levels.
- *
- * @public
- * @static
- * @type {Object.<string, number>}
- * @memberof ErrorCorrection
  */
 export const LEVELS: { [key in Level]: number } = {
   L: 1,

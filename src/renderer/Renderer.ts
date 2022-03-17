@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
+export type QRiousElement<E = Element> = E & { qrious?: QRious }
 
 import type QRious from "../QRious";
 import type Frame from "../Frame";
@@ -30,7 +30,7 @@ import type Frame from "../Frame";
  * The rendering of a element can be deferred by disabling the renderer initially, however, any attempt get the element
  * from the renderer will result in it being immediately enabled and the element being rendered.
  */
-abstract class Renderer {
+abstract class Renderer<E = HTMLElement> {
   /**
    * The {@link QRious} instance.
    */
@@ -39,14 +39,14 @@ abstract class Renderer {
   /**
    * The element onto which this {@link Renderer} is rendering the QR code.
    */
-  element: any;
+  element: QRiousElement<E>;
 
   /**
    * Whether this {@link Renderer} is enabled.
    */
   protected enabled: boolean;
 
-  constructor(qrious: QRious, element: any, enabled: boolean) {
+  constructor(qrious: QRious, element: E, enabled: boolean) {
     this.qrious = qrious;
     this.element = element;
     this.element.qrious = qrious;
@@ -68,7 +68,7 @@ abstract class Renderer {
    * If this method is called while this {@link Renderer} is disabled, it will be immediately enabled and rendered
    * before the element is returned.
    */
-  getElement(): any {
+  getElement(): QRiousElement<E> {
     if (!this.enabled) {
       this.enabled = true;
       this.render();
@@ -91,9 +91,9 @@ abstract class Renderer {
    * @return The pixel size for each module in the QR code which will be no less than one.
    */
   protected getModuleSize(frame: Frame): number {
-    var qrious = this.qrious;
-    var padding = qrious.padding || 0;
-    var pixels = Math.floor((qrious.options.size - (padding * 2)) / frame.width);
+    const qrious = this.qrious;
+    const padding = qrious.padding || 0;
+    const pixels = Math.floor((qrious.options.size - (padding * 2)) / frame.width);
 
     return Math.max(1, pixels);
   }
