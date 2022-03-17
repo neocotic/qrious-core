@@ -26,30 +26,27 @@ import type { Level } from "./ErrorCorrection"
 
 /**
  * The options used by {@link QRious}.
- *
- * @typedef {Object} QRious~Options
- * @property {string} [background="white"] - The background color to be applied to the QR code.
- * @property {number} [backgroundAlpha=1] - The background alpha to be applied to the QR code.
- * @property {*} [element] - The element to be used to render the QR code which may either be an <code>canvas</code> or
- * <code>img</code>. The element(s) will be created if needed.
- * @property {string} [foreground="black"] - The foreground color to be applied to the QR code.
- * @property {number} [foregroundAlpha=1] - The foreground alpha to be applied to the QR code.
- * @property {string} [level="L"] - The error correction level to be applied to the QR code.
- * @property {string} [mime="image/png"] - The MIME type to be used to render the image for the QR code.
- * @property {number} [padding=0] - The padding for the QR code in pixels.
- * @property {number} [size=100] - The size of the QR code in pixels.
- * @property {string} [value=""] - The value to be encoded within the QR code.
- */
+*/
 interface QRiousOptions {
+  /** The background color of the QR code. Default is white. */
   background: string;
+  /* The transparency of the background. From 1-0, default is 1. */
   backgroundAlpha: number;
+  /* The canvas to render the element on. */
   element: HTMLCanvasElement;
+  /** The foreground color of the QR code. Default is black */
   foreground: string;
+  /** The transparency of the background. From 1-0, default is 1 */
   foregroundAlpha: number;
+  /** The error correction level of the QR code */
   level: Level;
+  /** The MINE type of the rendered image */
   mime: string;
+  /** The padding of the qr code in pixels */
   padding: number;
+  /** The size of the qr code in pixels */
   size: number;
+  /** The value in the QR code */
   value: string;
 }
 
@@ -153,7 +150,7 @@ class QRious {
   /**
    * Configures the <code>service</code> provided to be used by all {@link QRious} instances.
    *
-   * @param {Service} service - the {@link Service} to be configured
+   * @param service - the {@link Service} to be configured
    * @throws {Error} If a {@link Service} has already been configured with the same name.
    */
   static use(service: Service): void {

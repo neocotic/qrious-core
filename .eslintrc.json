@@ -7,6 +7,7 @@
 	  "ecmaVersion": 8
   },
   "rules": {
+    "no-var": "error",
     "max-params": [
       "error",
       5

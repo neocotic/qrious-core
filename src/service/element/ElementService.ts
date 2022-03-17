@@ -47,11 +47,8 @@ abstract class ElementService extends Service {
    * @return The newly created image element.
    */
   abstract createImage(): any
-
-  /**
-   * @override
-   */
-  getName() {
+  
+  override getName() {
     return 'element';
   }
 

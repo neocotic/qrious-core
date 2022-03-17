@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Alignment from './Alignment'
-import ErrorCorrection, { Level } from './ErrorCorrection'
-import Galois from './Galois'
+import * as Alignment from './Alignment'
+import * as ErrorCorrection from './ErrorCorrection'
+import * as Galois from './Galois'
 import Version from './Version'
 
 /**
@@ -29,16 +29,13 @@ interface FrameOptions {
   /** The value to be encoded. */
   value: string;
   /** The ECC level to be used. */
-  level: Level;
+  level: ErrorCorrection.Level;
 }
 
 /**
  * Generates information for a QR code frame based on a specific value to be encoded.
  *
  * @param {FrameOptions} options - the options to be used
- * @public
- * @class
- * @extends Nevis
  */
 class Frame {
   private _version: number;

@@ -37,11 +37,9 @@ class ServiceManager {
   /**
    * Returns the {@link Service} being managed with the specified <code>name</code>.
    *
-   * @param {string} name - the name of the {@link Service} to be returned
-   * @return {Service} The {@link Service} is being managed with <code>name</code>.
+   * @param name - the name of the {@link Service} to be returned
+   * @return The {@link Service} is being managed with <code>name</code>.
    * @throws {Error} If no {@link Service} is being managed with <code>name</code>.
-   * @public
-   * @memberof ServiceManager#
    */
   getService(name: string): Service {
     var service = this._services[name];

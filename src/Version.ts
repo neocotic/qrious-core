@@ -21,7 +21,6 @@
  * Contains version pattern information.
  *
  * @public
- * @class
  */
 const Version: { BLOCK: number[] } = {
 

@@ -20,19 +20,10 @@
 /* eslint no-multi-spaces: "off" */
 
 /**
- * Contains alignment pattern information.
+ * The alignment pattern block.
  */
-const Alignment: { BLOCK: number [] } = {
-
-  /**
-   * The alignment pattern block.
-   */
-  BLOCK: [
-    0,  11, 15, 19, 23, 27, 31,
-    16, 18, 20, 22, 24, 26, 28, 20, 22, 24, 24, 26, 28, 28, 22, 24, 24,
-    26, 26, 28, 28, 24, 24, 26, 26, 26, 28, 28, 24, 26, 26, 26, 28, 28
-  ]
-
-};
-
-export default Alignment;
+export const BLOCK: number[] = [
+  0,  11, 15, 19, 23, 27, 31,
+  16, 18, 20, 22, 24, 26, 28, 20, 22, 24, 24, 26, 28, 28, 22, 24, 24,
+  26, 26, 28, 28, 24, 24, 26, 26, 26, 28, 28, 24, 26, 26, 26, 28, 28
+]

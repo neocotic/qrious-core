@@ -29,36 +29,22 @@ import type Frame from "../Frame";
  *
  * The rendering of a element can be deferred by disabling the renderer initially, however, any attempt get the element
  * from the renderer will result in it being immediately enabled and the element being rendered.
- *
- * @param {QRious} qrious - the {@link QRious} instance to be used
- * @param {*} element - the element onto which the QR code is to be rendered
- * @param {boolean} [enabled] - <code>true</code> this {@link Renderer} is enabled; otherwise <code>false</code>.
- * @public
- * @class
  */
 abstract class Renderer {
   /**
    * The {@link QRious} instance.
-   *
-   * @protected
    */
-  qrious: QRious;
+  protected qrious: QRious;
 
   /**
    * The element onto which this {@link Renderer} is rendering the QR code.
-   *
-   * @protected
    */
   element: any;
 
   /**
    * Whether this {@link Renderer} is enabled.
-   *
-   * @protected
-   * @type {boolean}
-   * @memberof Renderer#
    */
-  enabled: boolean;
+  protected enabled: boolean;
 
   constructor(qrious: QRious, element: any, enabled: boolean) {
     this.qrious = qrious;
@@ -124,15 +110,15 @@ abstract class Renderer {
    * @return The pixel offset for the QR code which will be no less than zero.
    */
   protected getOffset(frame: Frame): number {
-    var qrious = this.qrious;
-    var padding = qrious.padding;
+    const qrious = this.qrious;
+    const padding = qrious.padding;
 
     if (padding != null) {
       return padding;
     }
 
-    var moduleSize = this.getModuleSize(frame);
-    var offset = Math.floor((qrious.options.size - (moduleSize * frame.width)) / 2);
+    const moduleSize = this.getModuleSize(frame);
+    const offset = Math.floor((qrious.options.size - (moduleSize * frame.width)) / 2);
 
     return Math.max(0, offset);
   }
