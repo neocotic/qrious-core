@@ -35,7 +35,7 @@ abstract class ElementService extends Service {
    *
    * @return The newly created canvas element.
    */
-  abstract createCanvas(): any
+  abstract createCanvas(): HTMLCanvasElement
 
   /**
    * Creates an instance of a image element.
@@ -44,7 +44,7 @@ abstract class ElementService extends Service {
    *
    * @return The newly created image element.
    */
-  abstract createImage(): any
+  abstract createImage(): HTMLImageElement
 
   override get name() {
     return 'element';
@@ -58,7 +58,7 @@ abstract class ElementService extends Service {
    * @param element - the element to be checked
    * @return <code>true</code> if <code>element</code> is a canvas; otherwise <code>false</code>.
    */
-  abstract isCanvas(element: any): boolean
+  abstract isCanvas(element: HTMLElement): boolean
 
   /**
    * Returns whether the specified <code>element</code> is an image.
@@ -68,7 +68,7 @@ abstract class ElementService extends Service {
    * @param element - the element to be checked
    * @return <code>true</code> if <code>element</code> is an image; otherwise <code>false</code>.
    */
-  abstract isImage(element: any): boolean
+  abstract isImage(element: HTMLElement): boolean
 
 }
 

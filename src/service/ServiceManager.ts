@@ -21,16 +21,10 @@ import type Service from "./Service"
 
 /**
  * A basic manager for {@link Service} implementations that are mapped to simple names.
- *
- * @public
- * @class
  */
 class ServiceManager {
-  private _services: { [key: string]: Service };
+  private _services: { [key: string]: Service } = {};
 
-  constructor() {
-    this._services = {};
-  }
 
   /**
    * Returns the {@link Service} being managed with the specified <code>name</code>.
@@ -55,8 +49,6 @@ class ServiceManager {
    * @param name - the name of the {@link Service} to be managed with <code>name</code>
    * @param service - the {@link Service} implementation to be managed
    * @throws {Error} If a {@link Service} is already being managed with the same <code>name</code>.
-   * @public
-   * @memberof ServiceManager#
    */
   setService(name: string, service: Service): void {
     if (this._services[name]) {

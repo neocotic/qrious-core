@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as Alignment from './Alignment'
-import * as ErrorCorrection from './ErrorCorrection'
-import * as Galois from './Galois'
-import * as Version from './Version'
+import * as Alignment from './constants/alignment'
+import * as ErrorCorrection from './constants/errorCorrection'
+import * as Galois from './galois'
+import * as Version from './version'
 
 /**
  * The options used by {@link Frame}.
@@ -40,7 +40,10 @@ interface FrameOptions {
 class Frame {
   private _version: number;
   private _value: string;
+
+  /** The image buffer. */
   buffer: number[];
+
   private _badness: any[];
   private _level: number;
   private _polynomial: any[];
@@ -49,6 +52,7 @@ class Frame {
   _eccBlock: number;
   _neccBlock1: number;
   _neccBlock2: number;
+  /** The data width is based on version. */
   width: number;
   _ecc: number[];
   _mask: number[];
@@ -86,22 +90,9 @@ class Frame {
     this._neccBlock1 = neccBlock1 as number;
     this._neccBlock2 = neccBlock2 as number;
 
-    /**
-     * The data width is based on version.
-     *
-     * @public
-     * @memberof Frame#
-     */
     // FIXME: Ensure that it fits instead of being truncated.
     const width = this.width = 17 + (4 * this._version);
 
-    /**
-     * The image buffer.
-     *
-     * @public
-     * @type {number[]}
-     * @memberof Frame#
-     */
     this.buffer = Frame._createArray(width * width);
 
     this._ecc = Frame._createArray(dataBlock + ((dataBlock + eccBlock) * (neccBlock1 + neccBlock2)) + neccBlock2);

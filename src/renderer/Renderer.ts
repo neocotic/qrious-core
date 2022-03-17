@@ -92,7 +92,7 @@ abstract class Renderer<E = HTMLElement> {
    */
   protected getModuleSize(frame: Frame): number {
     const qrious = this.qrious;
-    const padding = qrious.padding || 0;
+    const padding = qrious.options.padding;
     const pixels = Math.floor((qrious.options.size - (padding * 2)) / frame.width);
 
     return Math.max(1, pixels);
@@ -111,7 +111,7 @@ abstract class Renderer<E = HTMLElement> {
    */
   protected getOffset(frame: Frame): number {
     const qrious = this.qrious;
-    const padding = qrious.padding;
+    const padding = qrious.options.padding;
 
     if (padding != null) {
       return padding;

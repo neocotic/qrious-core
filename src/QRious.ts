@@ -23,7 +23,7 @@ import { QRiousElement } from "./renderer/Renderer"
 import ImageRenderer from './renderer/ImageRenderer'
 import ServiceManager from './service/ServiceManager'
 import type Service from './service/Service';
-import type { Level } from "./ErrorCorrection"
+import type { Level } from "./constants/errorCorrection"
 
 /**
  * The options used by {@link QRious}.
@@ -72,8 +72,6 @@ let serviceManager = new ServiceManager();
  * @throws {Error} If any <code>options</code> are invalid.
  */
 class QRious {
-  padding: number | undefined;
-  mime: string | undefined;
   _canvasRenderer: CanvasRenderer;
   _imageRenderer: ImageRenderer;
   private _options: QRiousOptions 
@@ -110,7 +108,7 @@ class QRious {
    * @memberof QRious#
    */
   toDataURL(mime?: string): string {
-    return this.canvas.toDataURL(mime || this.mime);
+    return this.canvas.toDataURL(mime || this.options.mime);
   }
 
   /**
