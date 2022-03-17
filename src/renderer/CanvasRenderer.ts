@@ -27,15 +27,14 @@ class CanvasRenderer extends Renderer<HTMLCanvasElement> {
 
   override draw(frame: Frame) {
     let i, j;
-    const qrious = this.qrious;
     const moduleSize = this.getModuleSize(frame);
     const offset = this.getOffset(frame);
     const context = this.element.getContext('2d');
     
     if (context == null) throw Error("2d Context is null!")
 
-    context.fillStyle = qrious.options.foreground;
-    context.globalAlpha = qrious.options.foregroundAlpha;
+    context.fillStyle = this.qrious.options.foreground;
+    context.globalAlpha = this.qrious.options.foregroundAlpha;
 
     for (i = 0; i < frame.width; i++) {
       for (j = 0; j < frame.width; j++) {
@@ -47,16 +46,15 @@ class CanvasRenderer extends Renderer<HTMLCanvasElement> {
   }
 
   override reset() {
-    const qrious = this.qrious;
     const context = this.element.getContext('2d');
-    const size = qrious.options.size;
+    const size = this.qrious.options.size;
 
     if (context == null) throw Error("2d Context is null!")
 
     context.lineWidth = 1;
     context.clearRect(0, 0, size, size);
-    context.fillStyle = qrious.options.background;
-    context.globalAlpha = qrious.options.backgroundAlpha;
+    context.fillStyle = this.qrious.options.background;
+    context.globalAlpha = this.qrious.options.backgroundAlpha;
     context.fillRect(0, 0, size, size);
   }
 

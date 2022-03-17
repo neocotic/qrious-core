@@ -17,4 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-export default './src/QRious';
+import QRious from "./QRious";
+
+export default QRious
