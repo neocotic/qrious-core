@@ -107,7 +107,7 @@ abstract class Renderer {
   protected getModuleSize(frame: Frame): number {
     var qrious = this.qrious;
     var padding = qrious.padding || 0;
-    var pixels = Math.floor((qrious.size - (padding * 2)) / frame.width);
+    var pixels = Math.floor((qrious.options.size - (padding * 2)) / frame.width);
 
     return Math.max(1, pixels);
   }
@@ -132,7 +132,7 @@ abstract class Renderer {
     }
 
     var moduleSize = this.getModuleSize(frame);
-    var offset = Math.floor((qrious.size - (moduleSize * frame.width)) / 2);
+    var offset = Math.floor((qrious.options.size - (moduleSize * frame.width)) / 2);
 
     return Math.max(0, offset);
   }
