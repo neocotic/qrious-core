@@ -21,16 +21,16 @@
  * Defines a service contract that must be met by all implementations.
  */
 abstract class Service {
-  isCanvas(element: any) {
+  isCanvas(element: any): boolean {
     throw new Error('Method not implemented.');
   }
-  createCanvas() {
+  createCanvas(): HTMLCanvasElement {
     throw new Error('Method not implemented.');
   }
-  isImage(element: any) {
+  isImage(element: any): boolean {
     throw new Error('Method not implemented.');
   }
-  createImage() {
+  createImage(): HTMLImageElement {
     throw new Error('Method not implemented.');
   }
 

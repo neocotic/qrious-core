@@ -34,7 +34,7 @@ interface QRiousOptions {
   /* The transparency of the background. From 1-0, default is 1. */
   backgroundAlpha: number;
   /* The canvas to render the element on. */
-  element: HTMLCanvasElement;
+  element: HTMLElement;
   /** The foreground color of the QR code. Default is black */
   foreground: string;
   /** The transparency of the background. From 1-0, default is 1 */
@@ -81,13 +81,13 @@ class QRious {
   constructor(options: QRiousOptions) {
     this._options = Object.assign(generateDefaultOptions(), options)
 
-    let element = options.element as any
+    let element = options.element
     let elementService = serviceManager.getService('element');
     let canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
     let image = element && elementService.isImage(element) ? element : elementService.createImage();
 
-    this._canvasRenderer = new CanvasRenderer(this, canvas, true);
-    this._imageRenderer = new ImageRenderer(this, image, image === element);
+    this._canvasRenderer = new CanvasRenderer(this, canvas as HTMLCanvasElement, true);
+    this._imageRenderer = new ImageRenderer(this, image as HTMLImageElement, image === element);
 
     this.update();
   }
