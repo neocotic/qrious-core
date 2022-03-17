@@ -22,17 +22,10 @@ import Frame from '../Frame';
 
 /**
  * An implementation of {@link Renderer} for working with <code>canvas</code> elements.
- *
- * @public
- * @class
- * @extends Renderer
  */
 class CanvasRenderer extends Renderer {
 
-  /**
-   * @override
-   */
-  draw(frame: Frame) {
+  override draw(frame: Frame) {
     var i, j;
     var qrious = this.qrious;
     var moduleSize = this.getModuleSize(frame);
@@ -51,10 +44,7 @@ class CanvasRenderer extends Renderer {
     }
   }
 
-  /**
-   * @override
-   */
-  reset() {
+  override reset() {
     var qrious = this.qrious;
     var context = this.element.getContext('2d');
     var size = qrious.options.size;
@@ -66,10 +56,7 @@ class CanvasRenderer extends Renderer {
     context.fillRect(0, 0, size, size);
   }
 
-  /**
-   * @override
-   */
-  resize() {
+  override resize() {
     var element = this.element;
 
     element.width = element.height = this.qrious.options.size;

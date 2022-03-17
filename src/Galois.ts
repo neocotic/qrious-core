@@ -19,19 +19,11 @@
 
 /**
  * Contains Galois field information.
- *
- * @public
- * @class
  */
-const Galois = {
+const Galois: { EXPONENT: number[], LOG: number[] } = {
 
   /**
    * The Galois field exponent table.
-   *
-   * @public
-   * @static
-   * @type {number[]}
-   * @memberof Galois
    */
   EXPONENT: [
     0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1d, 0x3a, 0x74, 0xe8, 0xcd, 0x87, 0x13, 0x26,
@@ -54,11 +46,6 @@ const Galois = {
 
   /**
    * The Galois field log table.
-   *
-   * @public
-   * @static
-   * @type {number[]}
-   * @memberof Galois
    */
   LOG: [
     0xff, 0x00, 0x01, 0x19, 0x02, 0x32, 0x1a, 0xc6, 0x03, 0xdf, 0x33, 0xee, 0x1b, 0x68, 0xc7, 0x4b,

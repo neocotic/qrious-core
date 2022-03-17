@@ -23,15 +23,10 @@
  * @public
  * @class
  */
-const Version = {
+const Version: { BLOCK: number[] } = {
 
   /**
    * The version pattern block.
-   *
-   * @public
-   * @static
-   * @type {number[]}
-   * @memberof Version
    */
   BLOCK: [
     0xc94, 0x5bc, 0xa99, 0x4d3, 0xbf6, 0x762, 0x847, 0x60d, 0x928, 0xb78, 0x45d, 0xa17, 0x532,

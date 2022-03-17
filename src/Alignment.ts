@@ -21,18 +21,11 @@
 
 /**
  * Contains alignment pattern information.
- *
- * @public
- * @class
  */
-const Alignment = {
+const Alignment: { BLOCK: number [] } = {
 
   /**
    * The alignment pattern block.
-   *
-   * @public
-   * @type {number[]}
-   * @memberof Alignment
    */
   BLOCK: [
     0,  11, 15, 19, 23, 27, 31,

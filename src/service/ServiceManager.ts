@@ -56,9 +56,8 @@ class ServiceManager {
    * Sets the {@link Service} implementation to be managed for the specified <code>name</code> to the
    * <code>service</code> provided.
    *
-   * @param {string} name - the name of the {@link Service} to be managed with <code>name</code>
-   * @param {Service} service - the {@link Service} implementation to be managed
-   * @return {void}
+   * @param name - the name of the {@link Service} to be managed with <code>name</code>
+   * @param service - the {@link Service} implementation to be managed
    * @throws {Error} If a {@link Service} is already being managed with the same <code>name</code>.
    * @public
    * @memberof ServiceManager#

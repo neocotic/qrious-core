@@ -24,6 +24,22 @@ import ServiceManager from './service/ServiceManager'
 import type Service from './service/Service';
 import type { Level } from "./ErrorCorrection"
 
+/**
+ * The options used by {@link QRious}.
+ *
+ * @typedef {Object} QRious~Options
+ * @property {string} [background="white"] - The background color to be applied to the QR code.
+ * @property {number} [backgroundAlpha=1] - The background alpha to be applied to the QR code.
+ * @property {*} [element] - The element to be used to render the QR code which may either be an <code>canvas</code> or
+ * <code>img</code>. The element(s) will be created if needed.
+ * @property {string} [foreground="black"] - The foreground color to be applied to the QR code.
+ * @property {number} [foregroundAlpha=1] - The foreground alpha to be applied to the QR code.
+ * @property {string} [level="L"] - The error correction level to be applied to the QR code.
+ * @property {string} [mime="image/png"] - The MIME type to be used to render the image for the QR code.
+ * @property {number} [padding=0] - The padding for the QR code in pixels.
+ * @property {number} [size=100] - The size of the QR code in pixels.
+ * @property {string} [value=""] - The value to be encoded within the QR code.
+ */
 interface QRiousOptions {
   background: string;
   backgroundAlpha: number;
@@ -32,7 +48,7 @@ interface QRiousOptions {
   foregroundAlpha: number;
   level: Level;
   mime: string;
-  padding: null | number;
+  padding: number;
   size: number;
   value: string;
 }
@@ -44,7 +60,7 @@ const generateDefaultOptions = (): Partial<QRiousOptions> => ({
   foregroundAlpha: 1,
   level: "L",
   mime: "image/png",
-  padding: null,
+  padding: 0,
   size: 100,
   value: ""
 })
@@ -95,7 +111,6 @@ class QRious {
    *
    * @param [mime] - the MIME type for the image
    * @return The image data URI for the QR code.
-   * @public
    * @memberof QRious#
    */
   toDataURL(mime?: string): string {
@@ -105,11 +120,9 @@ class QRious {
   /**
    * Updates this {@link QRious} by generating a new {@link Frame} and re-rendering the QR code.
    *
-   * @return {void}
-   * @protected
    * @memberof QRious#
    */
-  update() {
+  protected update(): void {
     var frame = new Frame({
       level: this.options.level,
       value: this.options.value
@@ -122,24 +135,18 @@ class QRious {
   /**
    * Returns the <code>canvas</code> element being used to render the QR code for this {@link QRious}.
    *
-   * @return {*} The <code>canvas</code> element.
-   * @public
-   * @memberof QRious#
-   * @alias canvas
+   * @return The <code>canvas</code> element.
    */
-  get canvas() {
+  get canvas(): any {
     return this._canvasRenderer.getElement();
   }
 
   /**
    * Returns the <code>img</code> element being used to render the QR code for this {@link QRious}.
    *
-   * @return {*} The <code>img</code> element.
-   * @public
-   * @memberof QRious#
-   * @alias image
+   * @return The <code>img</code> element.
    */
-   get image() {
+   get image(): any {
     return this._imageRenderer.getElement();
   }
 
@@ -147,33 +154,12 @@ class QRious {
    * Configures the <code>service</code> provided to be used by all {@link QRious} instances.
    *
    * @param {Service} service - the {@link Service} to be configured
-   * @return {void}
    * @throws {Error} If a {@link Service} has already been configured with the same name.
-   * @public
-   * @static
-   * @memberof QRious
    */
-  static use(service: Service) {
+  static use(service: Service): void {
     serviceManager.setService(service.getName(), service);
   }
 
 }
 
 export default QRious;
-
-/**
- * The options used by {@link QRious}.
- *
- * @typedef {Object} QRious~Options
- * @property {string} [background="white"] - The background color to be applied to the QR code.
- * @property {number} [backgroundAlpha=1] - The background alpha to be applied to the QR code.
- * @property {*} [element] - The element to be used to render the QR code which may either be an <code>canvas</code> or
- * <code>img</code>. The element(s) will be created if needed.
- * @property {string} [foreground="black"] - The foreground color to be applied to the QR code.
- * @property {number} [foregroundAlpha=1] - The foreground alpha to be applied to the QR code.
- * @property {string} [level="L"] - The error correction level to be applied to the QR code.
- * @property {string} [mime="image/png"] - The MIME type to be used to render the image for the QR code.
- * @property {number} [padding] - The padding for the QR code in pixels.
- * @property {number} [size=100] - The size of the QR code in pixels.
- * @property {string} [value=""] - The value to be encoded within the QR code.
- */

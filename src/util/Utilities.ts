@@ -17,13 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /**
  * Contains utility methods that are useful throughout the library.
- *
- * @public
- * @class
  */
 class Utilities {
 
@@ -33,12 +28,9 @@ class Utilities {
    * This method is simply a convenient shorthand for <code>Math.abs</code> while ensuring that nulls are returned as
    * <code>null</code> instead of zero.
    *
-   * @param {number} value - the number whose absolute value is to be returned
-   * @return {number} The absolute value of <code>value</code> or <code>null</code> if <code>value</code> is
+   * @param value - the number whose absolute value is to be returned
+   * @return The absolute value of <code>value</code> or <code>null</code> if <code>value</code> is
    * <code>null</code>.
-   * @public
-   * @static
-   * @memberof Utilities
    */
   static abs(value: number): number | null {
     return value != null ? Math.abs(value) : null;
@@ -48,12 +40,9 @@ class Utilities {
    * Returns whether the specified <code>object</code> has a property with the specified <code>name</code> as an own
    * (not inherited) property.
    *
-   * @param {Object} object - the object on which the property is to be checked
-   * @param {string} name - the name of the property to be checked
-   * @return {boolean} <code>true</code> if <code>object</code> has an own property with <code>name</code>.
-   * @public
-   * @static
-   * @memberof Utilities
+   * @param object - the object on which the property is to be checked
+   * @param name - the name of the property to be checked
+   * @return <code>true</code> if <code>object</code> has an own property with <code>name</code>.
    */
   static hasOwn(object: Object, name: string): boolean {
     return Object.prototype.hasOwnProperty.call(object, name);
@@ -61,25 +50,17 @@ class Utilities {
 
   /**
    * A non-operation method that does absolutely nothing.
-   *
-   * @return {void}
-   * @public
-   * @static
-   * @memberof Utilities
    */
   static noop(): void {}
 
   /**
    * Transforms the specified <code>string</code> to upper case while remaining null-safe.
    *
-   * @param {string} string - the string to be transformed to upper case
-   * @return {string} <code>string</code> transformed to upper case if <code>string</code> is not <code>null</code>.
-   * @public
-   * @static
-   * @memberof Utilities
+   * @param string - the string to be transformed to upper case
+   * @return <code>string</code> transformed to upper case if <code>string</code> is not <code>null</code>.
    */
-  static toUpperCase(string: string | null): string | null {
-    return string != null ? string.toUpperCase() : null;
+  static toUpperCase(string: string | null | undefined): string | undefined {
+    return string?.toUpperCase()
   }
 
 }

@@ -48,16 +48,16 @@ class Frame {
   private _level: number;
   private _polynomial: any[];
   private _stringBuffer: any[]
-  _dataBlock: number | undefined;
-  _eccBlock: number | undefined;
-  _neccBlock1: number | undefined;
-  _neccBlock2: number | undefined;
+  _dataBlock: number;
+  _eccBlock: number;
+  _neccBlock1: number;
+  _neccBlock2: number;
   width: number;
   _ecc: number[];
   _mask: number[];
 
   constructor(options: FrameOptions) {
-    var dataBlock, eccBlock, index, neccBlock1, neccBlock2;
+    var dataBlock = 0, eccBlock = 0, index = 0, neccBlock1 = 0, neccBlock2 = 0;
     var valueLength = options.value.length;
 
     this._badness = [];
@@ -77,27 +77,26 @@ class Frame {
       dataBlock = ErrorCorrection.BLOCKS[index++];
       eccBlock = ErrorCorrection.BLOCKS[index];
 
-      index = (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + (this._version <= 9);
+      index = (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + +(this._version <= 9);
 
       if (valueLength <= index) {
         break;
       }
     }
 
-    this._dataBlock = dataBlock;
-    this._eccBlock = eccBlock;
-    this._neccBlock1 = neccBlock1;
-    this._neccBlock2 = neccBlock2;
+    this._dataBlock = dataBlock as number;
+    this._eccBlock = eccBlock as number;
+    this._neccBlock1 = neccBlock1 as number;
+    this._neccBlock2 = neccBlock2 as number;
 
     /**
      * The data width is based on version.
      *
      * @public
-     * @type {number}
      * @memberof Frame#
      */
     // FIXME: Ensure that it fits instead of being truncated.
-    var width = this.width = 17 + (4 * this._version);
+    const width = this.width = 17 + (4 * this._version);
 
     /**
      * The image buffer.
@@ -167,7 +166,7 @@ class Frame {
       if (bit !== 255) {
         for (j = 1; j < eccLength; j++) {
           stringBuffer[ecc + j - 1] = stringBuffer[ecc + j] ^
-            Galois.EXPONENT[Frame._modN(bit + polynomial[eccLength - j])];
+            Galois.EXPONENT[Frame.modN(bit + polynomial[eccLength - j])];
         }
       } else {
         for (j = ecc; j < ecc + eccLength; j++) {
@@ -175,11 +174,8 @@ class Frame {
         }
       }
 
-      stringBuffer[ecc + eccLength - 1] = bit === 255 ? 0 : Galois.EXPONENT[Frame._modN(bit + polynomial[0])];
+      stringBuffer[ecc + eccLength - 1] = bit === 255 ? 0 : Galois.EXPONENT[Frame.modN(bit + polynomial[0])];
     }
-  }
-  static _modN(arg0: any) {
-    throw new Error('Method not implemented.');
   }
 
   _appendEccToData() {
@@ -288,7 +284,7 @@ class Frame {
             r3x = 0;
           }
 
-          if (!((x & y & 1) + !(!r3x | !r3y)) && !this._isMasked(x, y)) {
+          if (!((x & y & 1) + +(!(+!r3x | +!r3y))) && !this._isMasked(x, y)) {
             buffer[x + (y * width)] ^= 1;
           }
         }
@@ -306,7 +302,7 @@ class Frame {
             r3x = 0;
           }
 
-          if (!((x & y & 1) + (r3x && r3x === r3y) & 1) && !this._isMasked(x, y)) {
+          if (+!((x & y & 1) + +(r3x && r3x === r3y) & 1) && !this._isMasked(x, y)) {
             buffer[x + (y * width)] ^= 1;
           }
         }
@@ -324,7 +320,7 @@ class Frame {
             r3x = 0;
           }
 
-          if (!((r3x && r3x === r3y) + (x + y & 1) & 1) && !this._isMasked(x, y)) {
+          if (!(+(r3x && r3x === r3y) + (x + y & 1) & 1) && !this._isMasked(x, y)) {
             buffer[x + (y * width)] ^= 1;
           }
         }
@@ -350,10 +346,10 @@ class Frame {
 
       for (j = i; j > 0; j--) {
         polynomial[j] = polynomial[j] ? polynomial[j - 1] ^
-          Galois.EXPONENT[Frame._modN(Galois.LOG[polynomial[j]] + i)] : polynomial[j - 1];
+          Galois.EXPONENT[Frame.modN(Galois.LOG[polynomial[j]] + i)] : polynomial[j - 1];
       }
 
-      polynomial[0] = Galois.EXPONENT[Frame._modN(Galois.LOG[polynomial[0]] + i)];
+      polynomial[0] = Galois.EXPONENT[Frame.modN(Galois.LOG[polynomial[0]] + i)];
     }
 
     // Use logs for generator polynomial to save calculation step.
@@ -505,7 +501,7 @@ class Frame {
     }
 
     // Fill to end with pad pattern.
-    index = length + 3 - (version < 10);
+    index = length + 3 - +(version < 10);
 
     while (index < maxLength) {
       stringBuffer[index++] = 0xec;
@@ -778,7 +774,7 @@ class Frame {
     }
   }
 
-  _isMasked(x, y) {
+  _isMasked(x: number, y: number) {
     var bit = Frame._getMaskBit(x, y);
 
     return this._mask[bit] === 1;
@@ -815,7 +811,7 @@ class Frame {
                 y--;
               } else {
                 x -= 2;
-                k = !k;
+                k = +!k;
 
                 if (x === 6) {
                   x--;
@@ -826,7 +822,7 @@ class Frame {
               y++;
             } else {
               x -= 2;
-              k = !k;
+              k = +!k;
 
               if (x === 6) {
                 x--;
@@ -835,7 +831,7 @@ class Frame {
             }
           }
 
-          v = !v;
+          v = +!v;
         } while (this._isMasked(x, y));
       }
     }
@@ -859,7 +855,7 @@ class Frame {
     }
   }
 
-  _setMask(x, y) {
+  _setMask(x: number, y: number) {
     var bit = Frame._getMaskBit(x, y);
 
     this._mask[bit] = 1;
@@ -878,7 +874,7 @@ class Frame {
     }
   }
 
-  static _createArray(length) {
+  static _createArray(length: number) {
     var i;
     var array = [];
 

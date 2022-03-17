@@ -41,34 +41,30 @@ abstract class Renderer {
    * The {@link QRious} instance.
    *
    * @protected
-   * @type {QRious}
-   * @memberof Renderer#
    */
   qrious: QRious;
+
+  /**
+   * The element onto which this {@link Renderer} is rendering the QR code.
+   *
+   * @protected
+   */
   element: any;
+
+  /**
+   * Whether this {@link Renderer} is enabled.
+   *
+   * @protected
+   * @type {boolean}
+   * @memberof Renderer#
+   */
   enabled: boolean;
 
   constructor(qrious: QRious, element: any, enabled: boolean) {
     this.qrious = qrious;
-
-    /**
-     * The element onto which this {@link Renderer} is rendering the QR code.
-     *
-     * @protected
-     * @type {*}
-     * @memberof Renderer#
-     */
     this.element = element;
     this.element.qrious = qrious;
-
-    /**
-     * Whether this {@link Renderer} is enabled.
-     *
-     * @protected
-     * @type {boolean}
-     * @memberof Renderer#
-     */
-    this.enabled = Boolean(enabled);
+    this.enabled = enabled;
   }
 
   /**
@@ -76,25 +72,17 @@ abstract class Renderer {
    *
    * Implementations of {@link Renderer} <b>must</b> override this method with their own specific logic.
    *
-   * @param {Frame} frame - the {@link Frame} to be drawn
-   * @return {void}
-   * @protected
-   * @abstract
-   * @memberof Renderer#
+   * @param frame - the {@link Frame} to be drawn
    */
-  abstract draw(frame: Frame): void
+  protected abstract draw(frame: Frame): void
 
   /**
    * Returns the element onto which this {@link Renderer} is rendering the QR code.
    *
    * If this method is called while this {@link Renderer} is disabled, it will be immediately enabled and rendered
    * before the element is returned.
-   *
-   * @return {*} The element.
-   * @public
-   * @memberof Renderer#
    */
-  getElement() {
+  getElement(): any {
     if (!this.enabled) {
       this.enabled = true;
       this.render();
@@ -113,12 +101,10 @@ abstract class Renderer {
    * This is done so that the inevitable clipping is handled more gracefully since this way at least something is
    * displayed instead of just a blank space filled by the background color.
    *
-   * @param {Frame} frame - the {@link Frame} from which the module size is to be derived
-   * @return {number} The pixel size for each module in the QR code which will be no less than one.
-   * @protected
-   * @memberof Renderer#
+   * @param frame - the {@link Frame} from which the module size is to be derived
+   * @return The pixel size for each module in the QR code which will be no less than one.
    */
-  getModuleSize(frame: Frame): number {
+  protected getModuleSize(frame: Frame): number {
     var qrious = this.qrious;
     var padding = qrious.padding || 0;
     var pixels = Math.floor((qrious.size - (padding * 2)) / frame.width);
@@ -134,12 +120,10 @@ abstract class Renderer {
    * contents. It will never be a negative value. This is done so that the inevitable clipping appears more naturally
    * and it is not clipped from all directions.
    *
-   * @param {Frame} frame - the {@link Frame} from which the offset is to be derived
-   * @return {number} The pixel offset for the QR code which will be no less than zero.
-   * @protected
-   * @memberof Renderer#
+   * @param frame - the {@link Frame} from which the offset is to be derived
+   * @return The pixel offset for the QR code which will be no less than zero.
    */
-  getOffset(frame: Frame): number {
+  protected getOffset(frame: Frame): number {
     var qrious = this.qrious;
     var padding = qrious.padding;
 
@@ -156,10 +140,7 @@ abstract class Renderer {
   /**
    * Renders a QR code on the underlying element based on the <code>frame</code> provided.
    *
-   * @param {Frame} frame - the {@link Frame} to be rendered
-   * @return {void}
-   * @public
-   * @memberof Renderer#
+   * @param frame - the {@link Frame} to be rendered
    */
   render(frame: Frame): void {
     if (this.enabled) {
@@ -173,25 +154,15 @@ abstract class Renderer {
    * Resets the underlying element, effectively clearing any previously rendered QR code.
    *
    * Implementations of {@link Renderer} <b>must</b> override this method with their own specific logic.
-   *
-   * @return {void}
-   * @protected
-   * @abstract
-   * @memberof Renderer#
    */
-  abstract reset(): void
+  protected abstract reset(): void
 
   /**
    * Ensures that the size of the underlying element matches that defined on the associated {@link QRious} instance.
    *
    * Implementations of {@link Renderer} <b>must</b> override this method with their own specific logic.
-   *
-   * @return {void}
-   * @protected
-   * @abstract
-   * @memberof Renderer#
    */
-  abstract resize(): void
+  protected abstract resize(): void
 
 }
 

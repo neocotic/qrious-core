@@ -23,9 +23,6 @@ export type Level = "L" | "M" | "Q" | "H"
 
 /**
  * Contains error correction information.
- *
- * @public
- * @class
  */
 const ErrorCorrection = {
 
@@ -34,13 +31,8 @@ const ErrorCorrection = {
    *
    * There are four elements per version. The first two indicate the number of blocks, then the data width, and finally
    * the ECC width.
-   *
-   * @public
-   * @static
-   * @type {number[]}
-   * @memberof ErrorCorrection
    */
-  get BLOCKS() {
+  get BLOCKS(): number[] {
     return [
       1,  0,  19,  7,     1,  0,  16,  10,    1,  0,  13,  13,    1,  0,  9,   17,
       1,  0,  34,  10,    1,  0,  28,  16,    1,  0,  22,  22,    1,  0,  16,  28,

@@ -35,22 +35,16 @@ abstract class ElementService extends Service {
    *
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
-   * @return {*} The newly created canvas element.
-   * @public
-   * @abstract
-   * @memberof ElementService#
+   * @return The newly created canvas element.
    */
-  createCanvas() {}
+  abstract createCanvas(): any
 
   /**
    * Creates an instance of a image element.
    *
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
-   * @return {*} The newly created image element.
-   * @public
-   * @abstract
-   * @memberof ElementService#
+   * @return The newly created image element.
    */
   abstract createImage(): any
 
@@ -66,11 +60,8 @@ abstract class ElementService extends Service {
    *
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
-   * @param {*} element - the element to be checked
-   * @return {boolean} <code>true</code> if <code>element</code> is a canvas; otherwise <code>false</code>.
-   * @public
-   * @abstract
-   * @memberof ElementService#
+   * @param element - the element to be checked
+   * @return <code>true</code> if <code>element</code> is a canvas; otherwise <code>false</code>.
    */
   abstract isCanvas(element: any): boolean
 
@@ -79,11 +70,8 @@ abstract class ElementService extends Service {
    *
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
-   * @param {*} element - the element to be checked
-   * @return {boolean} <code>true</code> if <code>element</code> is an image; otherwise <code>false</code>.
-   * @public
-   * @abstract
-   * @memberof ElementService#
+   * @param element - the element to be checked
+   * @return <code>true</code> if <code>element</code> is an image; otherwise <code>false</code>.
    */
   abstract isImage(element: any): boolean
 

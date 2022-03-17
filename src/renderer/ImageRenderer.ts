@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 import Renderer from './Renderer';
 
 /**
@@ -26,30 +24,17 @@ import Renderer from './Renderer';
  *
  * This depends on {@link CanvasRenderer} being executed first as this implementation simply applies the data URL from
  * the rendered <code>canvas</code> element as the <code>src</code> for the <code>img</code> element being rendered.
- *
- * @public
- * @class
- * @extends Renderer
  */
 class ImageRenderer extends Renderer {
-  /**
-   * @override
-   */
-  draw() {
+  override draw() {
     this.element.src = this.qrious.toDataURL();
   }
 
-  /**
-   * @override
-   */
-  reset() {
+  override reset() {
     this.element.src = '';
   }
 
-  /**
-   * @override
-   */
-  resize() {
+  override resize() {
     var element = this.element;
 
     element.width = element.height = this.qrious.options.size;

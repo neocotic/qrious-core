@@ -42,9 +42,7 @@ abstract class Service {
   /**
    * Returns the name of this {@link Service}.
    *
-   * @return {string} The service name.
-   * @public
-   * @memberof Service#
+   * @return The service name.
    */
   abstract getName(): string
 
