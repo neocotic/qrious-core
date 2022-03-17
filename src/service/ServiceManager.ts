@@ -17,26 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type Service from "./Service"
+import type Service from './Service';
 
 /**
  * A basic manager for {@link Service} implementations that are mapped to simple names.
  */
-class ServiceManager {
+export default class ServiceManager {
+
   private _services: { [key: string]: Service } = {};
 
 
   /**
    * Returns the {@link Service} being managed with the specified <code>name</code>.
    *
-   * @param name - the name of the {@link Service} to be returned
+   * @param [name] - the name of the {@link Service} to be returned
    * @return The {@link Service} is being managed with <code>name</code>.
    * @throws {Error} If no {@link Service} is being managed with <code>name</code>.
    */
   getService(name: string): Service {
-    let service = this._services[name];
+    const service = this._services[name];
     if (!service) {
-      throw new Error('Service is not being managed with name: ' + name);
+      throw new Error(`Service is not being managed with name: ${name}`);
     }
 
     return service;
@@ -50,9 +51,9 @@ class ServiceManager {
    * @param service - the {@link Service} implementation to be managed
    * @throws {Error} If a {@link Service} is already being managed with the same <code>name</code>.
    */
-  setService(name: string, service: Service): void {
+  setService(name: string, service: Service) {
     if (this._services[name]) {
-      throw new Error('Service is already managed with name: ' + name);
+      throw new Error(`Service is already managed with name: ${name}`);
     }
 
     if (service) {
@@ -61,5 +62,3 @@ class ServiceManager {
   }
 
 }
-
-export default ServiceManager;

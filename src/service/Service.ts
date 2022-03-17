@@ -20,7 +20,8 @@
 /**
  * Defines a service contract that must be met by all implementations.
  */
-abstract class Service {
+export default abstract class Service {
+
   isCanvas(element: any): boolean {
     throw new Error('Method not implemented.');
   }
@@ -42,5 +43,3 @@ abstract class Service {
   abstract get name(): string
 
 }
-
-export default Service;

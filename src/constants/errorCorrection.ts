@@ -19,7 +19,7 @@
 
 /* eslint no-multi-spaces: "off" */
 
-export type Level = "L" | "M" | "Q" | "H"
+export type Level = 'L' | 'M' | 'Q' | 'H'
 
 
 /**
@@ -69,7 +69,7 @@ export const BLOCKS: number[] = [
   4,  18, 122, 30,    13, 32, 46,  28,    48, 14, 24,  30,    42, 32, 15,  30,
   20, 4,  117, 30,    40, 7,  47,  28,    43, 22, 24,  30,    10, 67, 15,  30,
   19, 6,  118, 30,    18, 31, 47,  28,    34, 34, 24,  30,    20, 61, 15,  30
-]
+];
 
 /**
  * The final format bits with mask (level << 3 | mask).
@@ -83,7 +83,7 @@ export const FINAL_FORMAT: number[] = [
   0x355f, 0x3068, 0x3f31, 0x3a06, 0x24b4, 0x2183, 0x2eda, 0x2bed,
   // H
   0x1689, 0x13be, 0x1ce7, 0x19d0, 0x0762, 0x0255, 0x0d0c, 0x083b
-]
+];
 
 
 /**
@@ -94,5 +94,5 @@ export const LEVELS: { [key in Level]: number } = {
   M: 2,
   Q: 3,
   H: 4
-}
+};
 

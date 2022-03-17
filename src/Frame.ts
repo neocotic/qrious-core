@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as Alignment from './constants/alignment'
-import * as ErrorCorrection from './constants/errorCorrection'
-import * as Galois from './galois'
-import * as Version from './version'
+import * as Alignment from './constants/alignment';
+import * as ErrorCorrection from './constants/errorCorrection';
+import * as Galois from './constants/galois';
+import * as Version from './constants/version';
 
 /**
  * The options used by {@link Frame}.
@@ -37,17 +37,18 @@ interface FrameOptions {
  *
  * @param {FrameOptions} options - the options to be used
  */
-class Frame {
+export default class Frame {
+
   private _version: number;
   private _value: string;
 
   /** The image buffer. */
   buffer: number[];
 
-  private _badness: any[];
+  private _badness: number[];
   private _level: number;
-  private _polynomial: any[];
-  private _stringBuffer: any[]
+  private _polynomial: number[];
+  private _stringBuffer: number[];
   _dataBlock: number;
   _eccBlock: number;
   _neccBlock1: number;
@@ -58,7 +59,12 @@ class Frame {
   _mask: number[];
 
   constructor(options: FrameOptions) {
-    let dataBlock = 0, eccBlock = 0, index = 0, neccBlock1 = 0, neccBlock2 = 0;
+    let dataBlock = 0;
+    let eccBlock = 0;
+    let index = 0;
+    let neccBlock1 = 0;
+    let neccBlock2 = 0;
+
     const valueLength = options.value.length;
 
     this._badness = [];
@@ -78,7 +84,7 @@ class Frame {
       dataBlock = ErrorCorrection.BLOCKS[index++];
       eccBlock = ErrorCorrection.BLOCKS[index];
 
-      index = (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + +(this._version <= 9);
+      index = (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + Number(this._version <= 9);
 
       if (valueLength <= index) {
         break;
@@ -169,7 +175,7 @@ class Frame {
   _appendEccToData() {
     let i;
     let data = 0;
-    let dataBlock = this._dataBlock;
+    const dataBlock = this._dataBlock;
     let ecc = this._calculateMaxLength();
     const eccBlock = this._eccBlock;
 
@@ -272,7 +278,7 @@ class Frame {
             r3x = 0;
           }
 
-          if (!((x & y & 1) + +(!(+!r3x | +!r3y))) && !this._isMasked(x, y)) {
+          if (!((x & y & 1) + Number(!(Number(!r3x) | Number(!r3y)))) && !this._isMasked(x, y)) {
             buffer[x + (y * width)] ^= 1;
           }
         }
@@ -290,7 +296,7 @@ class Frame {
             r3x = 0;
           }
 
-          if (+!((x & y & 1) + +(r3x && r3x === r3y) & 1) && !this._isMasked(x, y)) {
+          if (Number(!((x & y & 1) + Number(r3x && r3x === r3y) & 1)) && !this._isMasked(x, y)) {
             buffer[x + (y * width)] ^= 1;
           }
         }
@@ -308,7 +314,7 @@ class Frame {
             r3x = 0;
           }
 
-          if (!(+(r3x && r3x === r3y) + (x + y & 1) & 1) && !this._isMasked(x, y)) {
+          if (!(Number(r3x && r3x === r3y) + (x + y & 1) & 1) && !this._isMasked(x, y)) {
             buffer[x + (y * width)] ^= 1;
           }
         }
@@ -489,7 +495,7 @@ class Frame {
     }
 
     // Fill to end with pad pattern.
-    index = length + 3 - +(version < 10);
+    index = length + 3 - Number(version < 10);
 
     while (index < maxLength) {
       stringBuffer[index++] = 0xec;
@@ -598,14 +604,14 @@ class Frame {
 
   _interleaveBlocks() {
     let i, j;
-    let dataBlock = this._dataBlock;
-    let ecc = this._ecc;
-    let eccBlock = this._eccBlock;
+    const dataBlock = this._dataBlock;
+    const ecc = this._ecc;
+    const eccBlock = this._eccBlock;
     let k = 0;
-    let maxLength = this._calculateMaxLength();
-    let neccBlock1 = this._neccBlock1;
-    let neccBlock2 = this._neccBlock2;
-    let stringBuffer = this._stringBuffer;
+    const maxLength = this._calculateMaxLength();
+    const neccBlock1 = this._neccBlock1;
+    const neccBlock2 = this._neccBlock2;
+    const stringBuffer = this._stringBuffer;
 
     for (i = 0; i < dataBlock; i++) {
       for (j = 0; j < neccBlock1; j++) {
@@ -632,8 +638,8 @@ class Frame {
 
   _insertAlignments() {
     let i, x, y;
-    let version = this._version;
-    let width = this.width;
+    const version = this._version;
+    const width = this.width;
 
     if (version > 1) {
       i = Alignment.BLOCK[version];
@@ -666,8 +672,8 @@ class Frame {
 
   _insertFinders() {
     let i, j, x, y;
-    let buffer = this.buffer;
-    let width = this.width;
+    const buffer = this.buffer;
+    const width = this.width;
 
     for (i = 0; i < 3; i++) {
       j = 0;
@@ -707,7 +713,7 @@ class Frame {
 
   _insertTimingGap() {
     let x, y;
-    let width = this.width;
+    const width = this.width;
 
     for (y = 0; y < 7; y++) {
       this._setMask(7, y);
@@ -724,8 +730,8 @@ class Frame {
 
   _insertTimingRowAndColumn() {
     let x;
-    let buffer = this.buffer;
-    let width = this.width;
+    const buffer = this.buffer;
+    const width = this.width;
 
     for (x = 0; x < width - 14; x++) {
       if (x & 1) {
@@ -740,9 +746,9 @@ class Frame {
 
   _insertVersion() {
     let i, j, x, y;
-    let buffer = this.buffer;
-    let version = this._version;
-    let width = this.width;
+    const buffer = this.buffer;
+    const version = this._version;
+    const width = this.width;
 
     if (version > 6) {
       i = Version.BLOCK[version - 7];
@@ -763,7 +769,7 @@ class Frame {
   }
 
   _isMasked(x: number, y: number) {
-    let bit = Frame._getMaskBit(x, y);
+    const bit = Frame._getMaskBit(x, y);
 
     return this._mask[bit] === 1;
   }
@@ -772,12 +778,12 @@ class Frame {
     let bit, i, j;
     let k = 1;
     let v = 1;
-    let width = this.width;
+    const width = this.width;
     let x = width - 1;
     let y = width - 1;
 
     // Interleaved data and ECC codes.
-    let length = ((this._dataBlock + this._eccBlock) * (this._neccBlock1 + this._neccBlock2)) + this._neccBlock2;
+    const length = ((this._dataBlock + this._eccBlock) * (this._neccBlock1 + this._neccBlock2)) + this._neccBlock2;
 
     for (i = 0; i < length; i++) {
       bit = this._stringBuffer[i];
@@ -799,7 +805,7 @@ class Frame {
                 y--;
               } else {
                 x -= 2;
-                k = +!k;
+                k = Number(!k);
 
                 if (x === 6) {
                   x--;
@@ -810,7 +816,7 @@ class Frame {
               y++;
             } else {
               x -= 2;
-              k = +!k;
+              k = Number(!k);
 
               if (x === 6) {
                 x--;
@@ -819,7 +825,7 @@ class Frame {
             }
           }
 
-          v = +!v;
+          v = Number(!v);
         } while (this._isMasked(x, y));
       }
     }
@@ -827,7 +833,7 @@ class Frame {
 
   _reverseMask() {
     let x, y;
-    let width = this.width;
+    const width = this.width;
 
     for (x = 0; x < 9; x++) {
       this._setMask(x, 8);
@@ -844,14 +850,14 @@ class Frame {
   }
 
   _setMask(x: number, y: number) {
-    let bit = Frame._getMaskBit(x, y);
+    const bit = Frame._getMaskBit(x, y);
 
     this._mask[bit] = 1;
   }
 
   _syncMask() {
     let x, y;
-    let width = this.width;
+    const width = this.width;
 
     for (y = 0; y < width; y++) {
       for (x = 0; x <= y; x++) {
@@ -864,7 +870,7 @@ class Frame {
 
   static _createArray(length: number) {
     let i;
-    let array = [];
+    const array = [];
 
     for (i = 0; i < length; i++) {
       array[i] = 0;
@@ -917,5 +923,3 @@ class Frame {
   }
 
 }
-
-export default Frame;

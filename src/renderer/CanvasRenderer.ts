@@ -23,15 +23,17 @@ import Frame from '../Frame';
 /**
  * An implementation of {@link Renderer} for working with <code>canvas</code> elements.
  */
-class CanvasRenderer extends Renderer<HTMLCanvasElement> {
+export default class CanvasRenderer extends Renderer<HTMLCanvasElement> {
 
   override draw(frame: Frame) {
     let i, j;
     const moduleSize = this.getModuleSize(frame);
     const offset = this.getOffset(frame);
     const context = this.element.getContext('2d');
-    
-    if (context == null) throw Error("2d Context is null!")
+
+    if (context == null) {
+      throw Error('2d Context is null!');
+    }
 
     context.fillStyle = this.qrious.options.foreground;
     context.globalAlpha = this.qrious.options.foregroundAlpha;
@@ -49,7 +51,9 @@ class CanvasRenderer extends Renderer<HTMLCanvasElement> {
     const context = this.element.getContext('2d');
     const size = this.qrious.options.size;
 
-    if (context == null) throw Error("2d Context is null!")
+    if (context == null) {
+      throw Error('2d Context is null!');
+    }
 
     context.lineWidth = 1;
     context.clearRect(0, 0, size, size);
@@ -63,5 +67,3 @@ class CanvasRenderer extends Renderer<HTMLCanvasElement> {
   }
 
 }
-
-export default CanvasRenderer;

@@ -1,5 +1,12 @@
 {
-  "extends": "notninja/esm9",
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "notninja/es6",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "env": {
     "node": true
   },

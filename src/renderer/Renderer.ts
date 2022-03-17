@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-export type QRiousElement<E = Element> = E & { qrious?: QRious }
+import type QRious from '../QRious';
+import type Frame from '../Frame';
 
-import type QRious from "../QRious";
-import type Frame from "../Frame";
+export type QRiousElement<E = Element> = E & { qrious?: QRious }
 
 /**
  * Responsible for rendering a QR code {@link Frame} on a specific type of element.
@@ -30,7 +30,8 @@ import type Frame from "../Frame";
  * The rendering of a element can be deferred by disabling the renderer initially, however, any attempt get the element
  * from the renderer will result in it being immediately enabled and the element being rendered.
  */
-abstract class Renderer<E = HTMLElement> {
+export default abstract class Renderer<E = HTMLElement> {
+
   /**
    * The {@link QRious} instance.
    */
@@ -67,6 +68,8 @@ abstract class Renderer<E = HTMLElement> {
    *
    * If this method is called while this {@link Renderer} is disabled, it will be immediately enabled and rendered
    * before the element is returned.
+   *
+   @return The QRious element
    */
   getElement(): QRiousElement<E> {
     if (!this.enabled) {
@@ -87,7 +90,7 @@ abstract class Renderer<E = HTMLElement> {
    * This is done so that the inevitable clipping is handled more gracefully since this way at least something is
    * displayed instead of just a blank space filled by the background color.
    *
-   * @param frame - the {@link Frame} from which the module size is to be derived
+   * @param [frame] - the {@link Frame} from which the module size is to be derived
    * @return The pixel size for each module in the QR code which will be no less than one.
    */
   protected getModuleSize(frame: Frame): number {
@@ -106,7 +109,7 @@ abstract class Renderer<E = HTMLElement> {
    * contents. It will never be a negative value. This is done so that the inevitable clipping appears more naturally
    * and it is not clipped from all directions.
    *
-   * @param frame - the {@link Frame} from which the offset is to be derived
+   * @param [frame] - the {@link Frame} from which the offset is to be derived
    * @return The pixel offset for the QR code which will be no less than zero.
    */
   protected getOffset(frame: Frame): number {
@@ -126,7 +129,7 @@ abstract class Renderer<E = HTMLElement> {
   /**
    * Renders a QR code on the underlying element based on the <code>frame</code> provided.
    *
-   * @param frame - the {@link Frame} to be rendered
+   * @param [frame] - the {@link Frame} to be rendered
    */
   render(frame: Frame): void {
     if (this.enabled) {
@@ -151,5 +154,3 @@ abstract class Renderer<E = HTMLElement> {
   protected abstract resize(): void
 
 }
-
-export default Renderer;

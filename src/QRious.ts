@@ -17,13 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CanvasRenderer from './renderer/CanvasRenderer'
-import Frame from './Frame'
-import { QRiousElement } from "./renderer/Renderer"
-import ImageRenderer from './renderer/ImageRenderer'
-import ServiceManager from './service/ServiceManager'
+import CanvasRenderer from './renderer/CanvasRenderer';
+import Frame from './Frame';
+import { QRiousElement } from './renderer/Renderer';
+import ImageRenderer from './renderer/ImageRenderer';
+import ServiceManager from './service/ServiceManager';
 import type Service from './service/Service';
-import type { Level } from "./constants/errorCorrection"
+import type { Level } from './constants/errorCorrection';
 
 /**
  * The options used by {@link QRious}.
@@ -52,18 +52,18 @@ interface QRiousOptions {
 }
 
 const generateDefaultOptions = (): Partial<QRiousOptions> => ({
-  background: "white",
+  background: 'white',
   backgroundAlpha: 1,
-  foreground: "black",
+  foreground: 'black',
   foregroundAlpha: 1,
-  level: "L",
-  mime: "image/png",
+  level: 'L',
+  mime: 'image/png',
   padding: 0,
   size: 100,
-  value: ""
-})
+  value: ''
+});
 
-let serviceManager = new ServiceManager();
+const serviceManager = new ServiceManager();
 
 /**
  * Enables configuration of a QR code generator which uses HTML5 <code>canvas</code> for rendering.
@@ -71,18 +71,19 @@ let serviceManager = new ServiceManager();
  * @param {QRious~Options} [options] - the options to be used
  * @throws {Error} If any <code>options</code> are invalid.
  */
-class QRious {
+export default class QRious {
+
   _canvasRenderer: CanvasRenderer;
   _imageRenderer: ImageRenderer;
-  private _options: QRiousOptions 
+  private _options: QRiousOptions;
 
   constructor(options: QRiousOptions) {
-    this._options = Object.assign(generateDefaultOptions(), options)
+    this._options = Object.assign(generateDefaultOptions(), options);
 
-    let element = options.element
-    let elementService = serviceManager.getService('element');
-    let canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
-    let image = element && elementService.isImage(element) ? element : elementService.createImage();
+    const element = options.element;
+    const elementService = serviceManager.getService('element');
+    const canvas = element && elementService.isCanvas(element) ? element : elementService.createCanvas();
+    const image = element && elementService.isImage(element) ? element : elementService.createImage();
 
     this._canvasRenderer = new CanvasRenderer(this, canvas as HTMLCanvasElement, true);
     this._imageRenderer = new ImageRenderer(this, image as HTMLImageElement, image === element);
@@ -91,13 +92,13 @@ class QRious {
   }
 
   get options(): QRiousOptions {
-    return this._options
+    return this._options;
   }
 
   change(value: Partial<QRiousOptions>) {
-    this._options = Object.assign(this._options, value)
+    this._options = Object.assign(this._options, value);
 
-    this.update()
+    this.update();
   }
 
   /**
@@ -105,7 +106,6 @@ class QRious {
    *
    * @param [mime] - the MIME type for the image
    * @return The image data URI for the QR code.
-   * @memberof QRious#
    */
   toDataURL(mime?: string): string {
     return this.canvas.toDataURL(mime || this.options.mime);
@@ -113,8 +113,6 @@ class QRious {
 
   /**
    * Updates this {@link QRious} by generating a new {@link Frame} and re-rendering the QR code.
-   *
-   * @memberof QRious#
    */
   protected update(): void {
     const frame = new Frame({
@@ -140,7 +138,7 @@ class QRious {
    *
    * @return The <code>img</code> element.
    */
-   get image(): QRiousElement<HTMLImageElement> {
+  get image(): QRiousElement<HTMLImageElement> {
     return this._imageRenderer.getElement();
   }
 
@@ -155,5 +153,3 @@ class QRious {
   }
 
 }
-
-export default QRious;

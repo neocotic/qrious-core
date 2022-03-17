@@ -26,7 +26,7 @@ import Service from '../Service';
  * @class
  * @extends Service
  */
-abstract class ElementService extends Service {
+export default abstract class ElementService extends Service {
 
   /**
    * Creates an instance of a canvas element.
@@ -71,5 +71,3 @@ abstract class ElementService extends Service {
   abstract isImage(element: HTMLElement): boolean
 
 }
-
-export default ElementService;
