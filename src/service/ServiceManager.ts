@@ -30,9 +30,9 @@ export default class ServiceManager {
   /**
    * Returns the {@link Service} being managed with the specified <code>name</code>.
    *
-   * @param [name] - the name of the {@link Service} to be returned
-   * @return The {@link Service} is being managed with <code>name</code>.
-   * @throws {Error} If no {@link Service} is being managed with <code>name</code>.
+   * @param name - the name of the {@link Service} to be returned
+   * @returns The {@link Service} is being managed with <code>name</code>.
+   * @throws {@link Error} If no {@link Service} is being managed with <code>name</code>.
    */
   getService(name: string): Service {
     const service = this._services[name];
@@ -49,7 +49,7 @@ export default class ServiceManager {
    *
    * @param name - the name of the {@link Service} to be managed with <code>name</code>
    * @param service - the {@link Service} implementation to be managed
-   * @throws {Error} If a {@link Service} is already being managed with the same <code>name</code>.
+   * @throws {@link Error} If a {@link Service} is already being managed with the same <code>name</code>.
    */
   setService(name: string, service: Service) {
     if (this._services[name]) {

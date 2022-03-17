@@ -68,8 +68,8 @@ const serviceManager = new ServiceManager();
 /**
  * Enables configuration of a QR code generator which uses HTML5 <code>canvas</code> for rendering.
  *
- * @param {QRious~Options} [options] - the options to be used
- * @throws {Error} If any <code>options</code> are invalid.
+ * @param options - the options to be used
+ * @throws {@link Error} If any <code>options</code> are invalid.
  */
 export default class QRious {
 
@@ -104,8 +104,8 @@ export default class QRious {
   /**
    * Returns the image data URI for the generated QR code using the <code>mime</code> provided.
    *
-   * @param [mime] - the MIME type for the image
-   * @return The image data URI for the QR code.
+   * @param mime - the MIME type for the image
+   * @returns The image data URI for the QR code.
    */
   toDataURL(mime?: string): string {
     return this.canvas.toDataURL(mime || this.options.mime);
@@ -127,7 +127,7 @@ export default class QRious {
   /**
    * Returns the <code>canvas</code> element being used to render the QR code for this {@link QRious}.
    *
-   * @return The <code>canvas</code> element.
+   * @returns The <code>canvas</code> element.
    */
   get canvas(): QRiousElement<HTMLCanvasElement> {
     return this._canvasRenderer.getElement();
@@ -136,7 +136,7 @@ export default class QRious {
   /**
    * Returns the <code>img</code> element being used to render the QR code for this {@link QRious}.
    *
-   * @return The <code>img</code> element.
+   * @returns The <code>img</code> element.
    */
   get image(): QRiousElement<HTMLImageElement> {
     return this._imageRenderer.getElement();
@@ -146,7 +146,7 @@ export default class QRious {
    * Configures the <code>service</code> provided to be used by all {@link QRious} instances.
    *
    * @param service - the {@link Service} to be configured
-   * @throws {Error} If a {@link Service} has already been configured with the same name.
+   * @throws {@link Error} If a {@link Service} has already been configured with the same name.
    */
   static use(service: Service): void {
     serviceManager.setService(service.name, service);

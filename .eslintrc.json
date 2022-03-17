@@ -1,19 +1,27 @@
+
 {
+  "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "eslint-plugin-tsdoc"
   ],
   "extends": [
     "notninja/es6",
     "plugin:@typescript-eslint/recommended"
   ],
   "env": {
-    "node": true
+    "node": true,
+    "browser": true,
+    "es2021": true
   },
   "parserOptions": {
-	  "ecmaVersion": 8
+    "ecmaVersion": 13
   },
   "rules": {
+    "valid-jsdoc": "off",
+    "tsdoc/syntax": "warn",
+    "no-console": "error",
     "no-var": "error",
     "prefer-const": "error",
     "max-params": [

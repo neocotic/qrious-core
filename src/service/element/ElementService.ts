@@ -21,10 +21,6 @@ import Service from '../Service';
 
 /**
  * A service for working with elements.
- *
- * @public
- * @class
- * @extends Service
  */
 export default abstract class ElementService extends Service {
 
@@ -33,7 +29,7 @@ export default abstract class ElementService extends Service {
    *
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
-   * @return The newly created canvas element.
+   * @returns The newly created canvas element.
    */
   abstract createCanvas(): HTMLCanvasElement
 
@@ -42,7 +38,7 @@ export default abstract class ElementService extends Service {
    *
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
-   * @return The newly created image element.
+   * @returns The newly created image element.
    */
   abstract createImage(): HTMLImageElement
 
@@ -56,7 +52,7 @@ export default abstract class ElementService extends Service {
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
    * @param element - the element to be checked
-   * @return <code>true</code> if <code>element</code> is a canvas; otherwise <code>false</code>.
+   * @returns <code>true</code> if <code>element</code> is a canvas; otherwise <code>false</code>.
    */
   abstract isCanvas(element: HTMLElement): boolean
 
@@ -66,7 +62,7 @@ export default abstract class ElementService extends Service {
    * Implementations of {@link ElementService} <b>must</b> override this method with their own specific logic.
    *
    * @param element - the element to be checked
-   * @return <code>true</code> if <code>element</code> is an image; otherwise <code>false</code>.
+   * @returns <code>true</code> if <code>element</code> is an image; otherwise <code>false</code>.
    */
   abstract isImage(element: HTMLElement): boolean
 

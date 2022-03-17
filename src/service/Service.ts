@@ -22,23 +22,15 @@
  */
 export default abstract class Service {
 
-  isCanvas(element: any): boolean {
-    throw new Error('Method not implemented.');
-  }
-  createCanvas(): HTMLCanvasElement {
-    throw new Error('Method not implemented.');
-  }
-  isImage(element: any): boolean {
-    throw new Error('Method not implemented.');
-  }
-  createImage(): HTMLImageElement {
-    throw new Error('Method not implemented.');
-  }
+  abstract isCanvas(element: HTMLElement): boolean
+  abstract createCanvas(): HTMLCanvasElement
+  abstract isImage(element: HTMLElement): boolean
+  abstract createImage(): HTMLImageElement
 
   /**
    * Returns the name of this {@link Service}.
    *
-   * @return The service name.
+   * @returns The service name.
    */
   abstract get name(): string
 

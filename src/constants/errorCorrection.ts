@@ -72,7 +72,7 @@ export const BLOCKS: number[] = [
 ];
 
 /**
- * The final format bits with mask (level << 3 | mask).
+ * The final format bits with mask (level &lt;&lt; 3 | mask).
  */
 export const FINAL_FORMAT: number[] = [
   // L

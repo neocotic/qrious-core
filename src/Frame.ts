@@ -35,7 +35,7 @@ interface FrameOptions {
 /**
  * Generates information for a QR code frame based on a specific value to be encoded.
  *
- * @param {FrameOptions} options - the options to be used
+ * @param options - the options to be used
  */
 export default class Frame {
 
