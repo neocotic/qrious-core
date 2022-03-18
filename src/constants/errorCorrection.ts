@@ -89,7 +89,10 @@ export const FINAL_FORMAT: number[] = [
 /**
  * A map of human-readable ECC levels.
  */
-export const LEVELS: { [key in Level]: number } = {
+export const LEVELS: {
+  // eslint-disable-next-line no-unused-vars
+  [K in Level]: number;
+} = {
   L: 1,
   M: 2,
   Q: 3,

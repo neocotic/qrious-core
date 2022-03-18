@@ -41,6 +41,6 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint-fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
     "ci": "npm run test",
-    "test": "eslint \"index.js\" \"src/**/*.js\" && jest"
+    "test": "jest"
   }
 }

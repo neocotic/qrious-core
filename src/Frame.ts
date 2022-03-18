@@ -25,12 +25,15 @@ import * as Version from './constants/version';
 /**
  * The options used by {@link Frame}.
  */
-interface FrameOptions {
+export interface FrameOptions {
   /** The value to be encoded. */
-  value: string;
-  /** The ECC level to be used. */
-  level: ErrorCorrection.Level;
+  value?: string;
+  /** The ECC level to be used. Default is L */
+  level?: ErrorCorrection.Level;
 }
+
+/** Utility to make value required for users inputting in a value. */
+export type UserFacingFrameOptions<T = FrameOptions> = T & { value: string }
 
 /**
  * Generates information for a QR code frame based on a specific value to be encoded.
@@ -58,17 +61,19 @@ export default class Frame {
   _ecc: number[];
   _mask: number[];
 
-  constructor(options: FrameOptions) {
+  constructor(options: UserFacingFrameOptions) {
     let dataBlock = 0;
     let eccBlock = 0;
     let index = 0;
     let neccBlock1 = 0;
     let neccBlock2 = 0;
 
+    const processedOptions: Required<FrameOptions> = Object.assign(options, { level: 'L' });
+
     const valueLength = options.value.length;
 
     this._badness = [];
-    this._level = ErrorCorrection.LEVELS[options.level];
+    this._level = ErrorCorrection.LEVELS[processedOptions.level];
     this._polynomial = [];
     this._value = options.value;
     this._version = 0;
