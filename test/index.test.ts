@@ -1,7 +1,6 @@
 import { renderText } from '../src/renderer/renderText';
 
-const exampleCom = `
-####### ### ##### #######
+const exampleCom = `####### ### ##### #######
 #     # #  ## #   #     #
 # ### #    ### ## # ### #
 # ### # # #   ##  # ### #
