@@ -33,7 +33,7 @@ test('Ensure base example.com example is valid', () => {
 test('Ensure options can be passed to text renderer', () => {
   expect(renderText({
     value: 'https://example.com',
-    foregroundChar: '■',
+    foregroundChar: '█',
     backgroundChar: ' '
-  })).toBe(exampleCom.replaceAll('#', '■'));
+  })).toBe(exampleCom.replaceAll('#', '█'));
 });

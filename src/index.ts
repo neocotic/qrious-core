@@ -17,6 +17,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QRious from './QRious';
+export { renderText } from './renderer/renderText';
 
-export default QRious;

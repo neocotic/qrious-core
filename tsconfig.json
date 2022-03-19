@@ -10,7 +10,11 @@
     "sourceMap": true,
     "declaration": true,
     "outDir": "dist/",
-    "lib": ["es2021"]
+    "lib": ["es2021", "DOM"],
+    "baseUrl": "./"
+  },
+  "ts-node": {
+    "esm": true
   },
   "include": ["src/**/*.ts", "index.ts"]
 }

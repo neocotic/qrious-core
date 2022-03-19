@@ -17,18 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { BaseRenderOptions } from './base';
+import { BaseRenderOptions, defaultBaseRenderOptions, RenderOptionsDefaults } from './base';
 
 export interface ImageLikeRenderOptions extends BaseRenderOptions {
   backgroundColor?: string;
   backgroundAlpha?: number;
   foregroundColor?: string;
   foregroundAlpha?: number;
+  size?: number;
 }
 
-export const defaultImageLikeRenderOptions: Partial<ImageLikeRenderOptions> = {
+export const defaultImageLikeRenderOptions: RenderOptionsDefaults<ImageLikeRenderOptions> = {
   backgroundColor: 'white',
   backgroundAlpha: 1,
   foregroundColor: 'black',
-  foregroundAlpha: 1
+  foregroundAlpha: 1,
+  size: 100,
+  ...defaultBaseRenderOptions
 };

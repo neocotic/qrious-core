@@ -7,19 +7,23 @@ interface TextRenderOptions extends BaseRenderOptions {
 }
 
 export const renderText = (options: UserFacingFrameOptions<TextRenderOptions>): string => {
-  const processedOptions: Required<TextRenderOptions> = Object.assign(defaultBaseRenderOptions, {
+  const processedOptions: Required<TextRenderOptions> = {
+    ...defaultBaseRenderOptions,
     foregroundChar: '#',
-    backgroundChar: ' '
-  }, options);
+    backgroundChar: ' ',
+    ...options
+  };
 
   const frame = new Frame(processedOptions);
 
-  let i, j;
-
   let str = '';
 
-  for (i = 0; i < frame.width; i++) {
-    for (j = 0; j < frame.width; j++) {
+  for (let p = 0; p < processedOptions.padding; p++) {
+    str += '\n';
+  }
+
+  for (let i = 0; i < frame.width; i++) {
+    for (let j = 0; j < frame.width; j++) {
       if (frame.buffer[(j * frame.width) + i]) {
         str += processedOptions.foregroundChar;
       } else {
@@ -29,6 +33,10 @@ export const renderText = (options: UserFacingFrameOptions<TextRenderOptions>): 
     if (i !== frame.width - 1) {
       str += '\n';
     }
+  }
+
+  for (let p = 0; p < processedOptions.padding; p++) {
+    str += '\n';
   }
 
   return str;
