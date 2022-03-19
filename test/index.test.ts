@@ -35,5 +35,5 @@ test('Ensure options can be passed to text renderer', () => {
     value: 'https://example.com',
     foregroundChar: '■',
     backgroundChar: ' '
-  })).toBe(exampleCom.replace('#', '■'));
+  })).toBe(exampleCom.replaceAll('#', '■'));
 });

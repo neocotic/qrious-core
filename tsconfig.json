@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "declaration": true,
-    "outDir": "dist/"
+    "outDir": "dist/",
+    "lib": ["es2021"]
   },
   "include": ["src/**/*.ts", "index.ts"]
 }

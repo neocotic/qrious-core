@@ -7,10 +7,10 @@ interface TextRenderOptions extends BaseRenderOptions {
 }
 
 export const renderText = (options: UserFacingFrameOptions<TextRenderOptions>): string => {
-  const processedOptions: Required<TextRenderOptions> = Object.assign(options, defaultBaseRenderOptions, {
+  const processedOptions: Required<TextRenderOptions> = Object.assign(defaultBaseRenderOptions, {
     foregroundChar: '#',
     backgroundChar: ' '
-  });
+  }, options);
 
   const frame = new Frame(processedOptions);
 
