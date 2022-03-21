@@ -1,6 +1,24 @@
 {
-  "version": "0.1.0",
-  "license": "MIT",
+  "name": "qrious-core",
+  "version": "4.0.0",
+  "description": "QRious core engine for QR code generation",
+  "homepage": "https://github.com/neocotic/qrious-core",
+  "bugs": {
+    "url": "https://github.com/neocotic/qrious-core/issues"
+  },
+  "author": {
+    "name": "Alasdair Mercer",
+    "email": "mercer.alasdair@gmail.com",
+    "url": "https://neocotic.com"
+  },
+  "license": "GPL-3.0",
+  "keywords": [
+    "qr",
+    "code",
+    "qrious",
+    "core",
+    "engine"
+  ],
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
@@ -31,8 +49,6 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "mylib",
-  "author": "LeoDog896",
   "module": "dist/mylib.esm.js",
   "size-limit": [
     {
