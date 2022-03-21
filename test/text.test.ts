@@ -1,5 +1,6 @@
 import { renderText } from '../src/index';
-import { promises as fs } from "fs"
+import { createReadStream } from "fs"
+import split from "split"
 
 const exampleCom = `####### ### ##### #######
 #     # #  ## #   #     #
@@ -27,6 +28,7 @@ const exampleCom = `####### ### ##### #######
 #     #  # # ## ## # ### 
 ####### # ### ##  # #####`;
 
+// impot { promises as fs } from "fs"
 // import crypto from "crypto"
 // await fs.writeFile("./test/resources.txt", "");
 // for (let i = 1; i < 4096; i += 10) {
@@ -41,18 +43,18 @@ test('Ensure base example.com example is valid', () => {
   expect(renderText({ value: 'https://example.com' })).toBe(exampleCom);
 });
 
-test('Ensure all resources are valid', async () => {
-  const resourceText = await fs.readFile("./test/resources.txt", "utf-8")
+test('Ensure all resources are valid', done => {
+  createReadStream("./test/resources.txt", "utf-8") 
+    .pipe(split("\t"))
+    .on("data", (entry: string) => {
+      if (!entry) return;
 
-  for (const entry of resourceText.split("\t")) {
+      const key = entry.split(":")[0]
+      const value = entry.split(":")[1]
 
-    if (!entry) continue;
-
-    const key = entry.split(":")[0]
-    const value = entry.split(":")[1]
-
-    expect(renderText({ value: key })).toBe(value)
-  }
+      expect(renderText({ value: key })).toBe(value)
+    })
+    .on("close", done)
 })
 
 test('Ensure options can be passed to text renderer', () => {
