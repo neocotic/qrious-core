@@ -16,5 +16,5 @@
   "ts-node": {
     "esm": true
   },
-  "include": ["src/**/*.ts", "index.ts"]
+  "include": ["src/**/*.ts", "example/**/*.ts"]
 }
