@@ -1,4 +1,4 @@
-import { renderText } from '../src/renderer/renderText';
+import { renderText } from '../src/index';
 
 const exampleCom = `####### ### ##### #######
 #     # #  ## #   #     #

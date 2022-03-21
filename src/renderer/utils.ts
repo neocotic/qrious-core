@@ -1,4 +1,4 @@
-import Frame from 'src/Frame';
+import Frame from '../Frame';
 
 export const getModuleSize = (frame: Frame, padding: number, size: number): number => {
   const pixels = Math.floor((size - (padding * 2)) / frame.width);

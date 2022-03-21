@@ -1,50 +1,55 @@
 {
-  "name": "qrious-core",
-  "version": "4.0.0",
-  "description": "QRious core engine for QR code generation",
-  "homepage": "https://github.com/neocotic/qrious-core",
-  "bugs": {
-    "url": "https://github.com/neocotic/qrious-core/issues"
-  },
-  "author": {
-    "name": "Alasdair Mercer",
-    "email": "mercer.alasdair@gmail.com",
-    "url": "https://neocotic.com"
-  },
-  "files": ["dist/src"],
-  "types": "dist/src/index.d.ts",
-  "license": "GPL-3.0",
-  "keywords": [
-    "qr",
-    "code",
-    "qrious",
-    "core",
-    "engine"
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
   ],
-  "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/neocotic/qrious-core.git"
+  "engines": {
+    "node": ">=10"
   },
-  "devDependencies": {
-    "@types/jest": "^27.4.1",
-    "@typescript-eslint/eslint-plugin": "^5.15.0",
-    "@typescript-eslint/parser": "^5.15.0",
-    "eslint": "^8.11.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-notninja": "^0.1.1",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-tsdoc": "^0.2.14",
-    "jest": "^27.5.1",
-    "ts-jest": "^27.1.3",
-    "typescript": "^4.6.2"
-  },
-  "main": "dist/src/index.js",
   "scripts": {
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint-fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
-    "ci": "npm run test",
-    "example": "tsc && node dist/example/index.js",
-    "test": "jest"
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "mylib",
+  "author": "LeoDog896",
+  "module": "dist/mylib.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/mylib.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/mylib.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^7.0.8",
+    "husky": "^7.0.4",
+    "size-limit": "^7.0.8",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.6.2"
   }
 }

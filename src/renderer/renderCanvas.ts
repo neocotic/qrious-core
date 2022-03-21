@@ -1,4 +1,4 @@
-import Frame, { UserFacingFrameOptions } from 'src/Frame';
+import Frame, { UserFacingFrameOptions } from '../Frame';
 import { defaultImageLikeRenderOptions, ImageLikeRenderOptions } from './options/image';
 import { getModuleSize } from './utils';
 
