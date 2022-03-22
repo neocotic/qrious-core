@@ -63,6 +63,7 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^7.0.8",
     "@types/split": "^1.0.0",
+    "eslint-config-notninja": "^0.4.0",
     "husky": "^7.0.4",
     "size-limit": "^7.0.8",
     "split": "^1.0.1",

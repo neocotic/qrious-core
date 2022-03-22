@@ -63,7 +63,7 @@ export default class Frame {
 
   constructor(options: UserFacingFrameOptions) {
 
-    const processedOptions: Required<FrameOptions> = Object.assign(options, { level: 'L' });
+    const processedOptions: Required<FrameOptions> = Object.assign({ level: 'L' }, options);
 
     const valueLength = options.value.length;
 
