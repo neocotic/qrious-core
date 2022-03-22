@@ -74,7 +74,7 @@ export const BLOCKS: number[] = [
 /**
  * The final format bits with mask (level &lt;&lt; 3 | mask).
  */
-export const FINAL_FORMAT: number[] = [
+export const FINAL_FORMAT: readonly number[] = [
   // L
   0x77c4, 0x72f3, 0x7daa, 0x789d, 0x662f, 0x6318, 0x6c41, 0x6976,
   // M

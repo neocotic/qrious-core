@@ -46,7 +46,7 @@ export default class Frame {
   private value: string;
 
   /** The image buffer. */
-  buffer: (0 | 1)[];
+  buffer: Uint8Array;
 
   private badness: number[] = [];
   private level: number;
@@ -58,14 +58,12 @@ export default class Frame {
   private neccBlock2: number = 0;
   /** The data width is based on version. */
   width: number;
-  ecc: number[];
-  mask: (0 | 1)[];
+  ecc: Uint8Array;
+  mask: Uint8Array;
 
   constructor(options: UserFacingFrameOptions) {
 
-    const processedOptions: Required<FrameOptions> = Object.assign({ level: 'L' }, options);
-
-    const valueLength = options.value.length;
+    const processedOptions: Required<FrameOptions> = { level: 'L', ...options };
 
     this.level = ErrorCorrection.LEVELS[processedOptions.level];
     this.value = options.value;
@@ -82,7 +80,7 @@ export default class Frame {
 
       index = (this.dataBlock * (this.neccBlock1 + this.neccBlock2)) + this.neccBlock2 - 3 + Number(this.version <= 9);
 
-      if (valueLength <= index) {
+      if (options.value.length <= index) {
         break;
       }
     }
@@ -90,10 +88,10 @@ export default class Frame {
     // FIXME: Ensure that it fits instead of being truncated.
     const width = this.width = 17 + (4 * this.version);
 
-    this.buffer = Frame._createArray(width * width);
+    this.buffer = new Uint8Array(width * width);
 
-    this.ecc = Frame._createArray(this.dataBlock + ((this.dataBlock + this.eccBlock) * (this.neccBlock1 + this.neccBlock2)) + this.neccBlock2);
-    this.mask = Frame._createArray(((width * (width + 1)) + 1) / 2);
+    this.ecc = new Uint8Array(this.dataBlock + ((this.dataBlock + this.eccBlock) * (this.neccBlock1 + this.neccBlock2)) + this.neccBlock2);
+    this.mask = new Uint8Array(((width * (width + 1)) + 1) / 2);
 
     this._insertFinders();
     this._insertAlignments();
@@ -106,7 +104,7 @@ export default class Frame {
     this._insertTimingRowAndColumn();
     this._insertVersion();
     this._syncMask();
-    this._convertBitStream(valueLength);
+    this._convertBitStream(options.value.length);
     this._calculatePolynomial();
     this._appendEccToData();
     this._interleaveBlocks();
@@ -441,7 +439,7 @@ export default class Frame {
       this.ecc[i] = this.value.charCodeAt(i);
     }
 
-    const stringBuffer = this.stringBuffer = this.ecc.slice();
+    const stringBuffer = this.stringBuffer = Array.from(this.ecc.slice());
     const maxLength = this._calculateMaxLength();
 
     if (length >= maxLength - 2) {
@@ -496,24 +494,23 @@ export default class Frame {
   _getBadness(length: number) {
     let i;
     let badRuns = 0;
-    const badness = this.badness;
 
     for (i = 0; i <= length; i++) {
-      if (badness[i] >= 5) {
-        badRuns += Frame.N1 + badness[i] - 5;
+      if (this.badness[i] >= 5) {
+        badRuns += Frame.N1 + this.badness[i] - 5;
       }
     }
 
     // FBFFFBF as in finder.
     for (i = 3; i < length - 1; i += 2) {
-      if (badness[i - 2] === badness[i + 2] &&
-        badness[i + 2] === badness[i - 1] &&
-        badness[i - 1] === badness[i + 1] &&
-        badness[i - 1] * 3 === badness[i] &&
+      if (this.badness[i - 2] === this.badness[i + 2] &&
+        this.badness[i + 2] === this.badness[i - 1] &&
+        this.badness[i - 1] === this.badness[i + 1] &&
+        this.badness[i - 1] * 3 === this.badness[i] &&
         // Background around the foreground pattern? Not part of the specs.
-        (badness[i - 3] === 0 || i + 3 > length ||
-        badness[i - 3] * 3 >= badness[i] * 4 ||
-        badness[i + 3] * 3 >= badness[i] * 4)) {
+        (this.badness[i - 3] === 0 || i + 3 > length ||
+        this.badness[i - 3] * 3 >= this.badness[i] * 4 ||
+        this.badness[i + 3] * 3 >= this.badness[i] * 4)) {
         badRuns += Frame.N3;
       }
     }
@@ -523,7 +520,7 @@ export default class Frame {
 
   _finish() {
     // Save pre-mask copy of frame.
-    this.stringBuffer = this.buffer.slice();
+    this.stringBuffer = Array.from(this.buffer.slice());
 
     let currentMask, i;
     let bit = 0;
@@ -551,7 +548,7 @@ export default class Frame {
       }
 
       // Reset for next pass.
-      this.buffer = this.stringBuffer.slice() as (0 | 1)[];
+      this.buffer = new Uint8Array(this.stringBuffer.slice());
     }
 
     // Redo best mask as none were "good enough" (i.e. last wasn't bit).
@@ -622,7 +619,7 @@ export default class Frame {
       }
     }
 
-    this.stringBuffer = this.ecc;
+    this.stringBuffer = Array.from(this.ecc);
   }
 
   _insertAlignments() {
@@ -838,9 +835,7 @@ export default class Frame {
   }
 
   _setMask(x: number, y: number) {
-    const bit = Frame._getMaskBit(x, y);
-
-    this.mask[bit] = 1;
+    this.mask[Frame._getMaskBit(x, y)] = 1;
   }
 
   _syncMask() {
@@ -853,10 +848,6 @@ export default class Frame {
         }
       }
     }
-  }
-
-  static _createArray(length: number): 0[] {
-    return Array(Math.floor(length)).fill(0);
   }
 
   static _getMaskBit(x: number, y: number) {
