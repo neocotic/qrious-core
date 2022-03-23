@@ -84,7 +84,7 @@ export interface FrameResults {
  *
  * @param options - the options to be used
  */
-export default function(options: UserFacingFrameOptions): FrameResults {
+export default function(options: Readonly<UserFacingFrameOptions>): FrameResults {
   let version = 0;
   let neccBlock1 = 0;
   let neccBlock2 = 0;
