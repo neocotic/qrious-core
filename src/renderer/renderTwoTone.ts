@@ -1,7 +1,7 @@
 import Frame, { UserFacingFrameOptions } from '../Frame';
 import { BaseRenderOptions, defaultBaseRenderOptions } from './options/base';
 
-export const renderTwoTone = (options: UserFacingFrameOptions<BaseRenderOptions> | string): string => {
+export const renderTwoTone = (options: Readonly<UserFacingFrameOptions<BaseRenderOptions>> | string): string => {
   const processedOptions: Required<BaseRenderOptions> = Object.assign(
     defaultBaseRenderOptions,
     typeof options === 'string' ? { value: options } : options

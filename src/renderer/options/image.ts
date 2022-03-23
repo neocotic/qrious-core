@@ -27,11 +27,11 @@ export interface ImageLikeRenderOptions extends BaseRenderOptions {
   size?: number;
 }
 
-export const defaultImageLikeRenderOptions: RenderOptionsDefaults<ImageLikeRenderOptions> = {
+export const defaultImageLikeRenderOptions: Readonly<RenderOptionsDefaults<ImageLikeRenderOptions>> = Object.freeze({
   backgroundColor: 'white',
   backgroundAlpha: 1,
   foregroundColor: 'black',
   foregroundAlpha: 1,
   size: 100,
   ...defaultBaseRenderOptions
-};
+});

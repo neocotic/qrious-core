@@ -28,4 +28,4 @@ export interface BaseRenderOptions extends FrameOptions {
 
 export type RenderOptionsDefaults<T = BaseRenderOptions> = Required<Omit<T, 'value'>> & { value?: string };
 
-export const defaultBaseRenderOptions: RenderOptionsDefaults = { padding: 0, level: 'L' };
+export const defaultBaseRenderOptions: Readonly<RenderOptionsDefaults> = Object.freeze({ padding: 0, level: 'L' });

@@ -2,8 +2,8 @@ import Frame, { UserFacingFrameOptions } from '../Frame';
 import { defaultImageLikeRenderOptions, ImageLikeRenderOptions } from './options/image';
 import { getModuleSize } from './utils';
 
-export const renderCanvas = (options: UserFacingFrameOptions<ImageLikeRenderOptions>, canvas: HTMLCanvasElement) => {
-  const processedOptions: Required<ImageLikeRenderOptions> = Object.assign(options, defaultImageLikeRenderOptions);
+export const renderCanvas = (options: Readonly<UserFacingFrameOptions<ImageLikeRenderOptions>>, canvas: HTMLCanvasElement) => {
+  const processedOptions: Required<ImageLikeRenderOptions> = { ...defaultImageLikeRenderOptions, ...options };
 
   const frame = Frame(options);
 

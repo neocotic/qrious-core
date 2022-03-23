@@ -139,7 +139,7 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   appendEccToData(dataBlock, neccBlock1, neccBlock2, eccBlock, polynomial, stringBuffer);
   const newStringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, stringBuffer.slice());
   pack(width, dataBlock, eccBlock, neccBlock1, neccBlock2, mask, buffer, newStringBuffer);
-  buffer = finish(level, badness, buffer, width, mask, newStringBuffer);
+  buffer = finish(level, badness, buffer, width, mask);
 
   return {
     width,
@@ -339,7 +339,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
   }
 }
 
-function calculateMaxLength(dataBlock: number, neccBlock1: number, neccBlock2: number) {
+function calculateMaxLength(dataBlock: number, neccBlock1: number, neccBlock2: number): number {
   return (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2;
 }
 
@@ -537,9 +537,9 @@ function getBadness(length: number, badness: readonly number[]) {
   return badRuns;
 }
 
-function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask, stringBuffer: Uint8Array): Uint8Array {
+function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask): Uint8Array {
   // Save pre-mask copy of frame.
-  stringBuffer = buffer.slice();
+  let tempBuffer = buffer.slice();
 
   let currentMask, i;
   let bit = 0;
@@ -567,7 +567,7 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
     }
 
     // Reset for next pass.
-    buffer = new Uint8Array(stringBuffer);
+    buffer = new Uint8Array(tempBuffer);
   }
 
   // Redo best mask as none were "good enough" (i.e. last wasn't bit).

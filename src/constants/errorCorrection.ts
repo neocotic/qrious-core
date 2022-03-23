@@ -28,7 +28,7 @@ export type Level = 'L' | 'M' | 'Q' | 'H'
  * There are four elements per version. The first two indicate the number of blocks, then the data width, and finally
  * the ECC width.
  */
-export const BLOCKS: number[] = [
+export const BLOCKS: readonly number[] = Object.freeze([
   1,  0,  19,  7,     1,  0,  16,  10,    1,  0,  13,  13,    1,  0,  9,   17,
   1,  0,  34,  10,    1,  0,  28,  16,    1,  0,  22,  22,    1,  0,  16,  28,
   1,  0,  55,  15,    1,  0,  44,  26,    2,  0,  17,  18,    2,  0,  13,  22,
@@ -69,12 +69,12 @@ export const BLOCKS: number[] = [
   4,  18, 122, 30,    13, 32, 46,  28,    48, 14, 24,  30,    42, 32, 15,  30,
   20, 4,  117, 30,    40, 7,  47,  28,    43, 22, 24,  30,    10, 67, 15,  30,
   19, 6,  118, 30,    18, 31, 47,  28,    34, 34, 24,  30,    20, 61, 15,  30
-];
+]);
 
 /**
  * The final format bits with mask (level &lt;&lt; 3 | mask).
  */
-export const FINAL_FORMAT: readonly number[] = [
+export const FINAL_FORMAT: readonly number[] = Object.freeze([
   // L
   0x77c4, 0x72f3, 0x7daa, 0x789d, 0x662f, 0x6318, 0x6c41, 0x6976,
   // M
@@ -83,19 +83,19 @@ export const FINAL_FORMAT: readonly number[] = [
   0x355f, 0x3068, 0x3f31, 0x3a06, 0x24b4, 0x2183, 0x2eda, 0x2bed,
   // H
   0x1689, 0x13be, 0x1ce7, 0x19d0, 0x0762, 0x0255, 0x0d0c, 0x083b
-];
+]);
 
 
 /**
  * A map of human-readable ECC levels.
  */
-export const LEVELS: {
+export const LEVELS: Readonly<{
   // eslint-disable-next-line no-unused-vars
   [K in Level]: number;
-} = {
+}> = Object.freeze({
   L: 1,
   M: 2,
   Q: 3,
   H: 4
-};
+});
 

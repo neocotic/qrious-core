@@ -6,7 +6,7 @@ interface TextRenderOptions extends BaseRenderOptions {
   backgroundChar?: string;
 }
 
-export const renderText = (options: UserFacingFrameOptions<TextRenderOptions> | string): string => {
+export const renderText = (options: Readonly<UserFacingFrameOptions<TextRenderOptions>> | string): string => {
   const processedOptions: Required<TextRenderOptions> = Object.assign({
     ...defaultBaseRenderOptions,
     foregroundChar: '#',
