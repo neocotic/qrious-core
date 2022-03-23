@@ -5,7 +5,7 @@ import { getModuleSize } from './utils';
 export const renderCanvas = (options: UserFacingFrameOptions<ImageLikeRenderOptions>, canvas: HTMLCanvasElement) => {
   const processedOptions: Required<ImageLikeRenderOptions> = Object.assign(options, defaultImageLikeRenderOptions);
 
-  const frame = new Frame(options);
+  const frame = Frame(options);
 
   let i, j;
   const moduleSize = getModuleSize(frame, processedOptions.padding, processedOptions.size);

@@ -1,6 +1,6 @@
-import Frame from '../Frame';
+import { FrameResults } from '../Frame';
 
-export const getModuleSize = (frame: Frame, padding: number, size: number): number => {
+export const getModuleSize = (frame: FrameResults, padding: number, size: number): number => {
   const pixels = Math.floor((size - (padding * 2)) / frame.width);
 
   return Math.max(1, pixels);

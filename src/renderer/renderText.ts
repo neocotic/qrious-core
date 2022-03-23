@@ -13,7 +13,7 @@ export const renderText = (options: UserFacingFrameOptions<TextRenderOptions> | 
     backgroundChar: ' '
   }, typeof options === 'string' ? { value: options } : options);
 
-  const frame = new Frame(processedOptions);
+  const frame = Frame(processedOptions);
 
   let str = '';
 

@@ -1,6 +1,6 @@
 import { renderText } from '../src/index';
-import { createReadStream } from "fs"
-import split from "split"
+import { createReadStream } from 'fs';
+import split from 'split';
 
 const exampleCom = `####### ### ##### #######
 #     # #  ## #   #     #
@@ -43,19 +43,21 @@ test('Ensure base example.com example is valid', () => {
   expect(renderText({ value: 'https://example.com' })).toBe(exampleCom);
 });
 
-test('Ensure all resources are valid', done => {
-  createReadStream("./test/resources.txt", "utf-8") 
-    .pipe(split("\t"))
-    .on("data", (entry: string) => {
-      if (!entry) return;
+test('Ensure all resources are valid', (done) => {
+  createReadStream('./test/resources.txt', 'utf-8')
+    .pipe(split('\t'))
+    .on('data', (entry: string) => {
+      if (!entry) {
+        return;
+      }
 
-      const key = entry.split(":")[0]
-      const value = entry.split(":")[1]
+      const key = entry.split(':')[0];
+      const value = entry.split(':')[1];
 
-      expect(renderText({ value: key })).toBe(value)
+      expect(renderText({ value: key })).toBe(value);
     })
-    .on("close", done)
-})
+    .on('close', done);
+});
 
 test('Ensure options can be passed to text renderer', () => {
   expect(renderText({

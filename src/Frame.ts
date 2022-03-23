@@ -35,12 +35,55 @@ export interface FrameOptions {
 /** Utility to make value required for users inputting in a value. */
 export type UserFacingFrameOptions<T = FrameOptions> = T & { value: string }
 
+// *Badness* coefficients.
+const N1 = 3;
+
+const N2 = 3;
+
+const N3 = 40;
+
+const N4 = 10;
+
+type Mask = Uint8Array;
+type Buffer = Uint8Array;
+
+function getMaskBit(x: number, y: number) {
+  let bit;
+
+  if (x > y) {
+    bit = x;
+    x = y;
+    y = bit;
+  }
+
+  bit = y;
+  bit += y * y;
+  bit >>= 1;
+  bit += x;
+
+  return bit;
+}
+
+function modN(x: number) {
+  while (x >= 255) {
+    x -= 255;
+    x = (x >> 8) + (x & 255);
+  }
+
+  return x;
+}
+
+export interface FrameResults {
+  buffer: Uint8Array
+  width: number
+}
+
 /**
  * Generates information for a QR code frame based on a specific value to be encoded.
  *
  * @param options - the options to be used
  */
-export default function(options: UserFacingFrameOptions) {
+export default function(options: UserFacingFrameOptions): FrameResults {
   let version = 0;
   let neccBlock1 = 0;
   let neccBlock2 = 0;
@@ -75,34 +118,37 @@ export default function(options: UserFacingFrameOptions) {
   // FIXME: Ensure that it fits instead of being truncated.
   const width = 17 + (4 * version);
 
-  const buffer = new Uint8Array(width * width);
+  let buffer = new Uint8Array(width * width);
 
   const ecc = new Uint8Array(dataBlock + ((dataBlock + eccBlock) * (neccBlock1 + neccBlock2)) + neccBlock2);
   const mask = new Uint8Array(((width * (width + 1)) + 1) / 2);
 
-  this._insertFinders();
-  this._insertAlignments();
+  insertFinders(mask, buffer, width);
+  insertAlignments(version, width, buffer, mask);
 
   // Insert single foreground cell.
   buffer[8 + (width * (width - 8))] = 1;
 
-  this._insertTimingGap();
-  this._reverseMask();
-  this._insertTimingRowAndColumn();
-  this._insertVersion();
-  this._syncMask();
-  this._convertBitStream(options.value.length);
-  this._calculatePolynomial();
-  this._appendEccToData();
-  this._interleaveBlocks();
-  this._pack();
-  this._finish();
+  insertTimingGap(width, mask);
+  reverseMask(mask, width);
+  insertTimingRowAndColumn(buffer, mask, width);
+  insertVersion(buffer, width, version, mask);
+  syncMask(width, mask, buffer);
+  stringBuffer = convertBitStream(options.value.length, version, value, ecc, dataBlock, neccBlock1, neccBlock2);
+  calculatePolynomial(polynomial, eccBlock);
+  appendEccToData(dataBlock, neccBlock1, neccBlock2, eccBlock, polynomial, stringBuffer);
+  stringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, stringBuffer);
+  pack(width, dataBlock, eccBlock, neccBlock1, neccBlock2, mask, buffer, stringBuffer);
+  [stringBuffer, buffer] = finish(level, badness, buffer, width, mask, stringBuffer);
+
+  return {
+    width,
+    buffer
+  }
 }
 
-_addAlignment(x: number, y: number) {
+function addAlignment(x: number, y: number, buffer: Buffer, mask: Mask, width: number) {
   let i;
-  const buffer = this.buffer;
-  const width = this.width;
 
   buffer[x + (width * y)] = 1;
 
@@ -114,17 +160,15 @@ _addAlignment(x: number, y: number) {
   }
 
   for (i = 0; i < 2; i++) {
-    this._setMask(x - 1, y + i);
-    this._setMask(x + 1, y - i);
-    this._setMask(x - i, y - 1);
-    this._setMask(x + i, y + 1);
+    setMask(x - 1, y + i, mask);
+    setMask(x + 1, y - i, mask);
+    setMask(x - i, y - 1, mask);
+    setMask(x + i, y + 1, mask);
   }
 }
 
-_appendData(data: number, dataLength: number, ecc: number, eccLength: number) {
+function appendData(data: number, dataLength: number, ecc: number, eccLength: number, polynomial: readonly number[], stringBuffer: number[]) {
   let bit, i, j;
-  const polynomial = this.polynomial;
-  const stringBuffer = this.stringBuffer;
 
   for (i = 0; i < eccLength; i++) {
     stringBuffer[ecc + i] = 0;
@@ -136,7 +180,7 @@ _appendData(data: number, dataLength: number, ecc: number, eccLength: number) {
     if (bit !== 255) {
       for (j = 1; j < eccLength; j++) {
         stringBuffer[ecc + j - 1] = stringBuffer[ecc + j] ^
-          Galois.EXPONENT[Frame.modN(bit + polynomial[eccLength - j])];
+          Galois.EXPONENT[modN(bit + polynomial[eccLength - j])];
       }
     } else {
       for (j = ecc; j < ecc + eccLength; j++) {
@@ -144,42 +188,38 @@ _appendData(data: number, dataLength: number, ecc: number, eccLength: number) {
       }
     }
 
-    stringBuffer[ecc + eccLength - 1] = bit === 255 ? 0 : Galois.EXPONENT[Frame.modN(bit + polynomial[0])];
+    stringBuffer[ecc + eccLength - 1] = bit === 255 ? 0 : Galois.EXPONENT[modN(bit + polynomial[0])];
   }
 }
 
-_appendEccToData() {
+function appendEccToData(dataBlock: number, neccBlock1: number, neccBlock2: number, eccBlock: number, polynomial: number[], stringBuffer: number[]) {
   let i;
   let data = 0;
-  const dataBlock = this.dataBlock;
-  let ecc = this._calculateMaxLength();
-  const eccBlock = this.eccBlock;
+  let ecc = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
 
-  for (i = 0; i < this.neccBlock1; i++) {
-    this._appendData(data, dataBlock, ecc, eccBlock);
+  for (i = 0; i < neccBlock1; i++) {
+    appendData(data, dataBlock, ecc, eccBlock, polynomial, stringBuffer);
 
     data += dataBlock;
     ecc += eccBlock;
   }
 
-  for (i = 0; i < this.neccBlock2; i++) {
-    this._appendData(data, dataBlock + 1, ecc, eccBlock);
+  for (i = 0; i < neccBlock2; i++) {
+    appendData(data, dataBlock + 1, ecc, eccBlock, polynomial, stringBuffer);
 
     data += dataBlock + 1;
     ecc += eccBlock;
   }
 }
 
-_applyMask(mask: number) {
+function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mask) {
   let r3x, r3y, x, y;
-  const buffer = this.buffer;
-  const width = this.width;
 
   switch (mask) {
   case 0:
     for (y = 0; y < width; y++) {
       for (x = 0; x < width; x++) {
-        if (!((x + y) & 1) && !this._isMasked(x, y)) {
+        if (!((x + y) & 1) && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -189,7 +229,7 @@ _applyMask(mask: number) {
   case 1:
     for (y = 0; y < width; y++) {
       for (x = 0; x < width; x++) {
-        if (!(y & 1) && !this._isMasked(x, y)) {
+        if (!(y & 1) && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -203,7 +243,7 @@ _applyMask(mask: number) {
           r3x = 0;
         }
 
-        if (!r3x && !this._isMasked(x, y)) {
+        if (!r3x && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -221,7 +261,7 @@ _applyMask(mask: number) {
           r3x = 0;
         }
 
-        if (!r3x && !this._isMasked(x, y)) {
+        if (!r3x && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -236,7 +276,7 @@ _applyMask(mask: number) {
           r3y = !r3y;
         }
 
-        if (!r3y && !this._isMasked(x, y)) {
+        if (!r3y && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -254,7 +294,7 @@ _applyMask(mask: number) {
           r3x = 0;
         }
 
-        if (!((x & y & 1) + Number(!(Number(!r3x) | Number(!r3y)))) && !this._isMasked(x, y)) {
+        if (!((x & y & 1) + Number(!(Number(!r3x) | Number(!r3y)))) && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -272,7 +312,7 @@ _applyMask(mask: number) {
           r3x = 0;
         }
 
-        if (Number(!((x & y & 1) + Number(r3x && r3x === r3y) & 1)) && !this._isMasked(x, y)) {
+        if (Number(!((x & y & 1) + Number(r3x && r3x === r3y) & 1)) && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -290,7 +330,7 @@ _applyMask(mask: number) {
           r3x = 0;
         }
 
-        if (!(Number(r3x && r3x === r3y) + (x + y & 1) & 1) && !this._isMasked(x, y)) {
+        if (!(Number(r3x && r3x === r3y) + (x + y & 1) & 1) && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -300,14 +340,12 @@ _applyMask(mask: number) {
   }
 }
 
-_calculateMaxLength() {
-  return (this.dataBlock * (this.neccBlock1 + this.neccBlock2)) + this.neccBlock2;
+function calculateMaxLength(dataBlock: number, neccBlock1: number, neccBlock2: number) {
+  return (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2;
 }
 
-_calculatePolynomial() {
+function calculatePolynomial(polynomial: number[], eccBlock: number) {
   let i, j;
-  const eccBlock = this.eccBlock;
-  const polynomial = this.polynomial;
 
   polynomial[0] = 1;
 
@@ -316,10 +354,10 @@ _calculatePolynomial() {
 
     for (j = i; j > 0; j--) {
       polynomial[j] = polynomial[j] ? polynomial[j - 1] ^
-        Galois.EXPONENT[Frame.modN(Galois.LOG[polynomial[j]] + i)] : polynomial[j - 1];
+        Galois.EXPONENT[modN(Galois.LOG[polynomial[j]] + i)] : polynomial[j - 1];
     }
 
-    polynomial[0] = Galois.EXPONENT[Frame.modN(Galois.LOG[polynomial[0]] + i)];
+    polynomial[0] = Galois.EXPONENT[modN(Galois.LOG[polynomial[0]] + i)];
   }
 
   // Use logs for generator polynomial to save calculation step.
@@ -328,12 +366,9 @@ _calculatePolynomial() {
   }
 }
 
-_checkBadness() {
+function checkBadness(badness: number[], buffer: Buffer, width: number) {
   let b, b1, h, x, y;
   let bad = 0;
-  const badness = this.badness;
-  const buffer = this.buffer;
-  const width = this.width;
 
   // Blocks of same colour.
   for (y = 0; y < width - 1; y++) {
@@ -348,7 +383,7 @@ _checkBadness() {
         buffer[x + 1 + (width * y)] ||
         buffer[x + (width * (y + 1))] ||
         buffer[x + 1 + (width * (y + 1))])) {
-        bad += Frame.N2;
+        bad += N2;
       }
     }
   }
@@ -374,7 +409,7 @@ _checkBadness() {
       bw += b ? 1 : -1;
     }
 
-    bad += this._getBadness(h);
+    bad += getBadness(h, badness);
   }
 
   if (bw < 0) {
@@ -391,7 +426,7 @@ _checkBadness() {
     count++;
   }
 
-  bad += count * Frame.N4;
+  bad += count * N4;
 
   // Y runs.
   for (x = 0; x < width; x++) {
@@ -411,23 +446,22 @@ _checkBadness() {
       b = b1;
     }
 
-    bad += this._getBadness(h);
+    bad += getBadness(h, badness);
   }
 
   return bad;
 }
 
-_convertBitStream(length: number) {
+function convertBitStream(length: number, version: number, value: string, ecc: Uint8Array, dataBlock: number, neccBlock1: number, neccBlock2: number): number[] {
   let bit, i;
-  const version = this.version;
 
   // Convert string to bit stream. 8-bit data to QR-coded 8-bit data (numeric, alphanumeric, or kanji not supported).
   for (i = 0; i < length; i++) {
-    this.ecc[i] = this.value.charCodeAt(i);
+    ecc[i] = value.charCodeAt(i);
   }
 
-  const stringBuffer = this.stringBuffer = Array.from(this.ecc.slice());
-  const maxLength = this._calculateMaxLength();
+  const stringBuffer = Array.from(ecc.slice());
+  const maxLength = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
 
   if (length >= maxLength - 2) {
     length = maxLength - 2;
@@ -476,38 +510,40 @@ _convertBitStream(length: number) {
     stringBuffer[index++] = 0xec;
     stringBuffer[index++] = 0x11;
   }
+
+  return stringBuffer;
 }
 
-_getBadness(length: number) {
+function getBadness(length: number, badness: readonly number[]) {
   let i;
   let badRuns = 0;
 
   for (i = 0; i <= length; i++) {
-    if (this.badness[i] >= 5) {
-      badRuns += Frame.N1 + this.badness[i] - 5;
+    if (badness[i] >= 5) {
+      badRuns += N1 + badness[i] - 5;
     }
   }
 
   // FBFFFBF as in finder.
   for (i = 3; i < length - 1; i += 2) {
-    if (this.badness[i - 2] === this.badness[i + 2] &&
-      this.badness[i + 2] === this.badness[i - 1] &&
-      this.badness[i - 1] === this.badness[i + 1] &&
-      this.badness[i - 1] * 3 === this.badness[i] &&
+    if (badness[i - 2] === badness[i + 2] &&
+      badness[i + 2] === badness[i - 1] &&
+      badness[i - 1] === badness[i + 1] &&
+      badness[i - 1] * 3 === badness[i] &&
       // Background around the foreground pattern? Not part of the specs.
-      (this.badness[i - 3] === 0 || i + 3 > length ||
-      this.badness[i - 3] * 3 >= this.badness[i] * 4 ||
-      this.badness[i + 3] * 3 >= this.badness[i] * 4)) {
-      badRuns += Frame.N3;
+      (badness[i - 3] === 0 || i + 3 > length ||
+      badness[i - 3] * 3 >= badness[i] * 4 ||
+      badness[i + 3] * 3 >= badness[i] * 4)) {
+      badRuns += N3;
     }
   }
 
   return badRuns;
 }
 
-_finish() {
+function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask, stringBuffer: number[]): [number[], Uint8Array] {
   // Save pre-mask copy of frame.
-  this.stringBuffer = Array.from(this.buffer.slice());
+  stringBuffer = Array.from(buffer.slice());
 
   let currentMask, i;
   let bit = 0;
@@ -519,9 +555,9 @@ _finish() {
     */
   for (i = 0; i < 8; i++) {
     // Returns foreground-background imbalance.
-    this._applyMask(i);
+    applyMask(width, buffer, i, oldCurrentMask);
 
-    currentMask = this._checkBadness();
+    currentMask = checkBadness(badness, buffer, width);
 
     // Is current mask better than previous best?
     if (currentMask < mask) {
@@ -535,19 +571,16 @@ _finish() {
     }
 
     // Reset for next pass.
-    this.buffer = new Uint8Array(this.stringBuffer.slice());
+    buffer = new Uint8Array(stringBuffer.slice());
   }
 
   // Redo best mask as none were "good enough" (i.e. last wasn't bit).
   if (bit !== i) {
-    this._applyMask(bit);
+    applyMask(width, buffer, bit, oldCurrentMask);
   }
 
   // Add in final mask/ECC level bytes.
-  mask = ErrorCorrection.FINAL_FORMAT[bit + (this.level - 1 << 3)];
-
-  const buffer = this.buffer;
-  const width = this.width;
+  mask = ErrorCorrection.FINAL_FORMAT[bit + (level - 1 << 3)];
 
   // Low byte.
   for (i = 0; i < 8; i++, mask >>= 1) {
@@ -574,45 +607,40 @@ _finish() {
       }
     }
   }
+
+  return [stringBuffer, buffer]
 }
 
-_interleaveBlocks() {
+function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, neccBlock1: number, neccBlock2: number, stringBuffer: readonly number[]): number[] {
   let i, j;
-  const dataBlock = this.dataBlock;
-  const eccBlock = this.eccBlock;
   let k = 0;
-  const maxLength = this._calculateMaxLength();
-  const neccBlock1 = this.neccBlock1;
-  const neccBlock2 = this.neccBlock2;
-  const stringBuffer = this.stringBuffer;
+  const maxLength = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
 
   for (i = 0; i < dataBlock; i++) {
     for (j = 0; j < neccBlock1; j++) {
-      this.ecc[k++] = stringBuffer[i + (j * dataBlock)];
+      ecc[k++] = stringBuffer[i + (j * dataBlock)];
     }
 
     for (j = 0; j < neccBlock2; j++) {
-      this.ecc[k++] = stringBuffer[(neccBlock1 * dataBlock) + i + (j * (dataBlock + 1))];
+      ecc[k++] = stringBuffer[(neccBlock1 * dataBlock) + i + (j * (dataBlock + 1))];
     }
   }
 
   for (j = 0; j < neccBlock2; j++) {
-    this.ecc[k++] = stringBuffer[(neccBlock1 * dataBlock) + i + (j * (dataBlock + 1))];
+    ecc[k++] = stringBuffer[(neccBlock1 * dataBlock) + i + (j * (dataBlock + 1))];
   }
 
   for (i = 0; i < eccBlock; i++) {
     for (j = 0; j < neccBlock1 + neccBlock2; j++) {
-      this.ecc[k++] = stringBuffer[maxLength + i + (j * eccBlock)];
+      ecc[k++] = stringBuffer[maxLength + i + (j * eccBlock)];
     }
   }
 
-  this.stringBuffer = Array.from(this.ecc);
+  return Array.from(ecc);
 }
 
-_insertAlignments() {
+function insertAlignments(version: number, width: number, buffer: Uint8Array, mask: Uint8Array,) {
   let i, x, y;
-  const version = this.version;
-  const width = this.width;
 
   if (version > 1) {
     i = Alignment.BLOCK[version];
@@ -622,7 +650,7 @@ _insertAlignments() {
       x = width - 7;
 
       while (x > i - 3) {
-        this._addAlignment(x, y);
+        addAlignment(x, y, buffer, mask, width);
 
         if (x < i) {
           break;
@@ -637,16 +665,14 @@ _insertAlignments() {
 
       y -= i;
 
-      this._addAlignment(6, y);
-      this._addAlignment(y, 6);
+      addAlignment(6, y, buffer, mask, width);
+      addAlignment(y, 6, buffer, mask, width);
     }
   }
 }
 
-_insertFinders() {
+function insertFinders(mask: Mask, buffer: Buffer, width: number) {
   let i, j, x, y;
-  const buffer = this.buffer;
-  const width = this.width;
 
   for (i = 0; i < 3; i++) {
     j = 0;
@@ -669,10 +695,10 @@ _insertFinders() {
     }
 
     for (x = 1; x < 5; x++) {
-      this._setMask(y + x, j + 1);
-      this._setMask(y + 1, j + x + 1);
-      this._setMask(y + 5, j + x);
-      this._setMask(y + x + 1, j + 5);
+      setMask(y + x, j + 1, mask);
+      setMask(y + 1, j + x + 1, mask);
+      setMask(y + 5, j + x, mask);
+      setMask(y + x + 1, j + 5, mask);
     }
 
     for (x = 2; x < 4; x++) {
@@ -684,32 +710,25 @@ _insertFinders() {
   }
 }
 
-_insertTimingGap() {
-  let x, y;
-  const width = this.width;
-
-  for (y = 0; y < 7; y++) {
-    this._setMask(7, y);
-    this._setMask(width - 8, y);
-    this._setMask(7, y + width - 7);
+function insertTimingGap(width: number, mask: Mask) {
+  for (let y = 0; y < 7; y++) {
+    setMask(7, y, mask);
+    setMask(width - 8, y, mask);
+    setMask(7, y + width - 7, mask);
   }
 
-  for (x = 0; x < 8; x++) {
-    this._setMask(x, 7);
-    this._setMask(x + width - 8, 7);
-    this._setMask(x, width - 8);
+  for (let x = 0; x < 8; x++) {
+    setMask(x, 7, mask);
+    setMask(x + width - 8, 7, mask);
+    setMask(x, width - 8, mask);
   }
 }
 
-_insertTimingRowAndColumn() {
-  let x;
-  const buffer = this.buffer;
-  const width = this.width;
-
-  for (x = 0; x < width - 14; x++) {
+function insertTimingRowAndColumn(buffer: Buffer, mask: Mask, width: number) {
+  for (let x = 0; x < width - 14; x++) {
     if (x & 1) {
-      this._setMask(8 + x, 6);
-      this._setMask(6, 8 + x);
+      setMask(8 + x, 6, mask);
+      setMask(6, 8 + x, mask);
     } else {
       buffer[8 + x + (width * 6)] = 1;
       buffer[6 + (width * (8 + x))] = 1;
@@ -717,11 +736,8 @@ _insertTimingRowAndColumn() {
   }
 }
 
-_insertVersion() {
+function insertVersion(buffer: Buffer, width: number, version: number, mask: Mask) {
   let i, j, x, y;
-  const buffer = this.buffer;
-  const version = this.version;
-  const width = this.width;
 
   if (version > 6) {
     i = Version.BLOCK[version - 7];
@@ -733,37 +749,36 @@ _insertVersion() {
           buffer[5 - x + (width * (2 - y + width - 11))] = 1;
           buffer[2 - y + width - 11 + (width * (5 - x))] = 1;
         } else {
-          this._setMask(5 - x, 2 - y + width - 11);
-          this._setMask(2 - y + width - 11, 5 - x);
+          setMask(5 - x, 2 - y + width - 11, mask);
+          setMask(2 - y + width - 11, 5 - x, mask);
         }
       }
     }
   }
 }
 
-_isMasked(x: number, y: number) {
-  const bit = Frame._getMaskBit(x, y);
+function isMasked(x: number, y: number, mask: Mask) {
+  const bit = getMaskBit(x, y);
 
-  return this.mask[bit] === 1;
+  return mask[bit] === 1;
 }
 
-_pack() {
+function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: number, neccBlock2: number, mask: Mask, buffer: Buffer, stringBuffer: readonly number[]) {
   let bit, i, j;
   let k = 1;
   let v = 1;
-  const width = this.width;
   let x = width - 1;
   let y = width - 1;
 
   // Interleaved data and ECC codes.
-  const length = ((this.dataBlock + this.eccBlock) * (this.neccBlock1 + this.neccBlock2)) + this.neccBlock2;
+  const length = ((dataBlock + eccBlock) * (neccBlock1 + neccBlock2)) + neccBlock2;
 
   for (i = 0; i < length; i++) {
-    bit = this.stringBuffer[i];
+    bit = stringBuffer[i];
 
     for (j = 0; j < 8; j++, bit <<= 1) {
       if (0x80 & bit) {
-        this.buffer[x + (width * y)] = 1;
+        buffer[x + (width * y)] = 1;
       }
 
       // Find next fill position.
@@ -799,75 +814,36 @@ _pack() {
         }
 
         v = Number(!v);
-      } while (this._isMasked(x, y));
+      } while (isMasked(x, y, mask));
     }
   }
 }
 
-_reverseMask() {
-  const width = this.width;
-
+function reverseMask(mask: Mask, width: number) {
   for (let x = 0; x < 9; x++) {
-    this._setMask(x, 8);
+    setMask(x, 8, mask);
   }
 
   for (let x = 0; x < 8; x++) {
-    this._setMask(x + width - 8, 8);
-    this._setMask(8, x);
+    setMask(x + width - 8, 8, mask);
+    setMask(8, x, mask);
   }
 
   for (let y = 0; y < 7; y++) {
-    this._setMask(8, y + width - 7);
+    setMask(8, y + width - 7, mask);
   }
 }
 
-_setMask(x: number, y: number) {
-  this.mask[Frame._getMaskBit(x, y)] = 1;
+function setMask(x: number, y: number, mask: Mask) {
+  mask[getMaskBit(x, y)] = 1;
 }
 
-_syncMask() {
-  const width = this.width;
-
+function syncMask(width: number, mask: Mask, buffer: Buffer) {
   for (let y = 0; y < width; y++) {
     for (let x = 0; x <= y; x++) {
-      if (this.buffer[x + (width * y)]) {
-        this._setMask(x, y);
+      if (buffer[x + (width * y)]) {
+        setMask(x, y, mask);
       }
     }
   }
 }
-
-function getMaskBit(x: number, y: number) {
-  let bit;
-
-  if (x > y) {
-    bit = x;
-    x = y;
-    y = bit;
-  }
-
-  bit = y;
-  bit += y * y;
-  bit >>= 1;
-  bit += x;
-
-  return bit;
-}
-
-function modN(x: number) {
-  while (x >= 255) {
-    x -= 255;
-    x = (x >> 8) + (x & 255);
-  }
-
-  return x;
-}
-
-// *Badness* coefficients.
-const N1 = 3;
-
-const N2 = 3;
-
-const N3 = 40;
-
-const N4 = 10;
