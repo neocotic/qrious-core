@@ -92,7 +92,7 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   let eccBlock = 0;
   const badness: number[] = [];
 
-  const processedOptions: Required<FrameOptions> = { level: 'L', ...options };
+  const processedOptions: Readonly<Required<FrameOptions>> = { level: 'L', ...options };
 
   const level = ErrorCorrection.LEVELS[processedOptions.level];
   const value = options.value;
@@ -346,8 +346,8 @@ function calculateMaxLength(dataBlock: number, neccBlock1: number, neccBlock2: n
 function calculatePolynomial(polynomial: Uint8Array, eccBlock: number) {
   polynomial[0] = 1;
 
-  for (let i = 0; i < eccBlock; i++) {
-    polynomial[i + 1] = 1;
+  for (let i = 1; i < eccBlock; i++) {
+    polynomial[i] = 1;
 
     for (let j = i; j > 0; j--) {
       polynomial[j] = polynomial[j] ? polynomial[j - 1] ^
@@ -364,12 +364,12 @@ function calculatePolynomial(polynomial: Uint8Array, eccBlock: number) {
 }
 
 function checkBadness(badness: number[], buffer: Buffer, width: number) {
-  let b, b1, h, x, y;
+  let b1, h;
   let bad = 0;
 
   // Blocks of same colour.
-  for (y = 0; y < width - 1; y++) {
-    for (x = 0; x < width - 1; x++) {
+  for (let y = 0; y < width - 1; y++) {
+    for (let x = 0; x < width - 1; x++) {
       // All foreground colour.
       if ((buffer[x + (width * y)] &&
         buffer[x + 1 + (width * y)] &&
@@ -388,12 +388,12 @@ function checkBadness(badness: number[], buffer: Buffer, width: number) {
   let bw = 0;
 
   // X runs.
-  for (y = 0; y < width; y++) {
+  for (let y = 0; y < width; y++) {
     h = 0;
 
     badness[0] = 0;
 
-    for (b = 0, x = 0; x < width; x++) {
+    for (let b = 0, x = 0; x < width; x++) {
       b1 = buffer[x + (width * y)];
 
       if (b === b1) {
@@ -426,12 +426,12 @@ function checkBadness(badness: number[], buffer: Buffer, width: number) {
   bad += count * N4;
 
   // Y runs.
-  for (x = 0; x < width; x++) {
+  for (let x = 0; x < width; x++) {
     h = 0;
 
     badness[0] = 0;
 
-    for (b = 0, y = 0; y < width; y++) {
+    for (let b = 0, y = 0; y < width; y++) {
       b1 = buffer[x + (width * y)];
 
       if (b === b1) {
@@ -567,7 +567,7 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
     }
 
     // Reset for next pass.
-    buffer = new Uint8Array(tempBuffer);
+    buffer = tempBuffer.slice();
   }
 
   // Redo best mask as none were "good enough" (i.e. last wasn't bit).
@@ -608,26 +608,26 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
 }
 
 function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, neccBlock1: number, neccBlock2: number, stringBuffer: Uint8Array): Uint8Array {
-  let i, j;
+  let i;
   let k = 0;
   const maxLength = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
 
   for (i = 0; i < dataBlock; i++) {
-    for (j = 0; j < neccBlock1; j++) {
+    for (let j = 0; j < neccBlock1; j++) {
       ecc[k++] = stringBuffer[i + (j * dataBlock)];
     }
 
-    for (j = 0; j < neccBlock2; j++) {
+    for (let j = 0; j < neccBlock2; j++) {
       ecc[k++] = stringBuffer[(neccBlock1 * dataBlock) + i + (j * (dataBlock + 1))];
     }
   }
 
-  for (j = 0; j < neccBlock2; j++) {
+  for (let j = 0; j < neccBlock2; j++) {
     ecc[k++] = stringBuffer[(neccBlock1 * dataBlock) + i + (j * (dataBlock + 1))];
   }
 
   for (i = 0; i < eccBlock; i++) {
-    for (j = 0; j < neccBlock1 + neccBlock2; j++) {
+    for (let j = 0; j < neccBlock1 + neccBlock2; j++) {
       ecc[k++] = stringBuffer[maxLength + i + (j * eccBlock)];
     }
   }
@@ -635,15 +635,13 @@ function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, 
   return ecc;
 }
 
-function insertAlignments(version: number, width: number, buffer: Uint8Array, mask: Uint8Array,) {
-  let i, x, y;
-
+function insertAlignments(version: number, width: number, buffer: Uint8Array, mask: Uint8Array) {
   if (version > 1) {
-    i = Alignment.BLOCK[version];
-    y = width - 7;
+    let i = Alignment.BLOCK[version];
+    let y = width - 7;
 
     for (;;) {
-      x = width - 7;
+      let x = width - 7;
 
       while (x > i - 3) {
         addAlignment(x, y, buffer, mask, width);
@@ -731,11 +729,9 @@ function insertTimingRowAndColumn(buffer: Buffer, mask: Mask, width: number) {
 }
 
 function insertVersion(buffer: Buffer, width: number, version: number, mask: Mask) {
-  let i, j;
-
   if (version > 6) {
-    i = Version.BLOCK[version - 7];
-    j = 17;
+    let i = Version.BLOCK[version - 7];
+    let j = 17;
 
     for (let x = 0; x < 6; x++) {
       for (let y = 0; y < 3; y++, j--) {
