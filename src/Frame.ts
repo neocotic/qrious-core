@@ -82,7 +82,6 @@ function modN(x: number) {
 
   return x;
 }
-
 export interface FrameResults {
   readonly buffer: Uint8Array
   readonly width: number
@@ -674,40 +673,63 @@ function insertAlignments(version: number, width: number, buffer: Uint8Array, ma
   }
 }
 
+/**
+ * Inserts all three finders on a QR code
+ * @param mask - TODO
+ * @param buffer - The buffer to write the finders on
+ * @param width - The width of the QR code -- used to get the starting coordinates of the finders.
+ */
 function insertFinders(mask: Mask, buffer: Buffer, width: number) {
   for (let i = 0; i < 3; i++) {
-    let j = 0;
-    let y = 0;
+    insertFinder(
+      mask, buffer, width,
+      // on the first iteration (i === 0) position at the top left
+      i === 1 ? width - 7 : 0, // on the second iteration, position at the top right
+      i === 2 ? width - 7 : 0 // on the third iteration positin at the bottom left
+    );
+  }
+}
 
-    if (i === 1) {
-      j = width - 7;
-    }
-    if (i === 2) {
-      y = width - 7;
-    }
+/**
+ * Insert a finder on a qr code
+ * 
+ * Finder format:
+ * #######
+ * #     #
+ * # ### #
+ * # ### #
+ * # ### #
+ * #     #
+ * #######
+ * 
+ * @param mask - TODO ???
+ * @param buffer - The buffer the finders are written to
+ * @param width - The width of the qr code
+ * @param x - The left side of the finder
+ * @param y - The top side of the finder
+ */
+function insertFinder(mask: Mask, buffer: Buffer, width: number, x = 0, y = 0) {
+  buffer[y + 3 + (width * (x + 3))] = 1;
 
-    buffer[y + 3 + (width * (j + 3))] = 1;
+  for (let i = 0; i < 6; i++) {
+    buffer[y + i + (width * x)] = 1;
+    buffer[y + (width * (x + i + 1))] = 1;
+    buffer[y + 6 + (width * (x + i))] = 1;
+    buffer[y + i + 1 + (width * (x + 6))] = 1;
+  }
 
-    for (let x = 0; x < 6; x++) {
-      buffer[y + x + (width * j)] = 1;
-      buffer[y + (width * (j + x + 1))] = 1;
-      buffer[y + 6 + (width * (j + x))] = 1;
-      buffer[y + x + 1 + (width * (j + 6))] = 1;
-    }
+  for (let i = 1; i < 5; i++) {
+    setMask(y + i, x + 1, mask);
+    setMask(y + 1, x + i + 1, mask);
+    setMask(y + 5, x + i, mask);
+    setMask(y + i + 1, x + 5, mask);
+  }
 
-    for (let x = 1; x < 5; x++) {
-      setMask(y + x, j + 1, mask);
-      setMask(y + 1, j + x + 1, mask);
-      setMask(y + 5, j + x, mask);
-      setMask(y + x + 1, j + 5, mask);
-    }
-
-    for (let x = 2; x < 4; x++) {
-      buffer[y + x + (width * (j + 2))] = 1;
-      buffer[y + 2 + (width * (j + x + 1))] = 1;
-      buffer[y + 4 + (width * (j + x))] = 1;
-      buffer[y + x + 1 + (width * (j + 4))] = 1;
-    }
+  for (let i = 2; i < 4; i++) {
+    buffer[y + i + (width * (x + 2))] = 1;
+    buffer[y + 2 + (width * (x + i + 1))] = 1;
+    buffer[y + 4 + (width * (x + i))] = 1;
+    buffer[y + i + 1 + (width * (x + 4))] = 1;
   }
 }
 
