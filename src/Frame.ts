@@ -91,7 +91,6 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   let dataBlock = 0;
   let eccBlock = 0;
   const badness: number[] = [];
-  let stringBuffer: number[] = [];
 
   const processedOptions: Required<FrameOptions> = { level: 'L', ...options };
 
@@ -113,8 +112,6 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
     }
   }
 
-  const polynomial: Uint8Array = new Uint8Array(eccBlock);
-
   // FIXME: Ensure that it fits instead of being truncated.
   const width = 17 + (4 * version);
 
@@ -134,12 +131,15 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   insertTimingRowAndColumn(buffer, mask, width);
   insertVersion(buffer, width, version, mask);
   syncMask(width, mask, buffer);
-  stringBuffer = convertBitStream(options.value.length, version, value, ecc, dataBlock, neccBlock1, neccBlock2);
+
+  const polynomial: Uint8Array = new Uint8Array(eccBlock);
+
+  const stringBuffer = convertBitStream(options.value.length, version, value, ecc, dataBlock, neccBlock1, neccBlock2);
   calculatePolynomial(polynomial, eccBlock);
   appendEccToData(dataBlock, neccBlock1, neccBlock2, eccBlock, polynomial, stringBuffer);
-  stringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, stringBuffer);
-  pack(width, dataBlock, eccBlock, neccBlock1, neccBlock2, mask, buffer, stringBuffer);
-  buffer = finish(level, badness, buffer, width, mask, stringBuffer);
+  const newStringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, Array.from(stringBuffer));
+  pack(width, dataBlock, eccBlock, neccBlock1, neccBlock2, mask, buffer, newStringBuffer);
+  buffer = finish(level, badness, buffer, width, mask, newStringBuffer);
 
   return {
     width,
@@ -167,7 +167,7 @@ function addAlignment(x: number, y: number, buffer: Buffer, mask: Mask, width: n
   }
 }
 
-function appendData(data: number, dataLength: number, ecc: number, eccLength: number, polynomial: Uint8Array, stringBuffer: number[]) {
+function appendData(data: number, dataLength: number, ecc: number, eccLength: number, polynomial: Uint8Array, stringBuffer: Uint8Array) {
   let bit, i, j;
 
   for (i = 0; i < eccLength; i++) {
@@ -192,7 +192,7 @@ function appendData(data: number, dataLength: number, ecc: number, eccLength: nu
   }
 }
 
-function appendEccToData(dataBlock: number, neccBlock1: number, neccBlock2: number, eccBlock: number, polynomial: Uint8Array, stringBuffer: number[]) {
+function appendEccToData(dataBlock: number, neccBlock1: number, neccBlock2: number, eccBlock: number, polynomial: Uint8Array, stringBuffer: Uint8Array) {
   let data = 0;
   let ecc = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
 
@@ -449,7 +449,7 @@ function checkBadness(badness: number[], buffer: Buffer, width: number) {
   return bad;
 }
 
-function convertBitStream(length: number, version: number, value: string, ecc: Uint8Array, dataBlock: number, neccBlock1: number, neccBlock2: number): number[] {
+function convertBitStream(length: number, version: number, value: string, ecc: Uint8Array, dataBlock: number, neccBlock1: number, neccBlock2: number): Uint8Array {
   let bit, i;
 
   // Convert string to bit stream. 8-bit data to QR-coded 8-bit data (numeric, alphanumeric, or kanji not supported).
@@ -508,7 +508,7 @@ function convertBitStream(length: number, version: number, value: string, ecc: U
     stringBuffer[index++] = 0x11;
   }
 
-  return Array.from(stringBuffer);
+  return stringBuffer;
 }
 
 function getBadness(length: number, badness: readonly number[]) {
