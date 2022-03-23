@@ -91,7 +91,6 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   let dataBlock = 0;
   let eccBlock = 0;
   const badness: number[] = [];
-  const polynomial: number[] = [];
   let stringBuffer: number[] = [];
 
   const processedOptions: Required<FrameOptions> = { level: 'L', ...options };
@@ -108,13 +107,13 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
     neccBlock2 = ErrorCorrection.BLOCKS[index++];
     dataBlock = ErrorCorrection.BLOCKS[index++];
     eccBlock = ErrorCorrection.BLOCKS[index];
-
-    index = (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + Number(version <= 9);
-
-    if (value.length <= index) {
+    
+    if (value.length <= (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + Number(version <= 9)) {
       break;
     }
   }
+
+  const polynomial: Uint8Array = new Uint8Array(eccBlock);
 
   // FIXME: Ensure that it fits instead of being truncated.
   const width = 17 + (4 * version);
@@ -140,7 +139,7 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   appendEccToData(dataBlock, neccBlock1, neccBlock2, eccBlock, polynomial, stringBuffer);
   stringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, stringBuffer);
   pack(width, dataBlock, eccBlock, neccBlock1, neccBlock2, mask, buffer, stringBuffer);
-  [stringBuffer, buffer] = finish(level, badness, buffer, width, mask, stringBuffer);
+  buffer = finish(level, badness, buffer, width, mask, stringBuffer);
 
   return {
     width,
@@ -168,7 +167,7 @@ function addAlignment(x: number, y: number, buffer: Buffer, mask: Mask, width: n
   }
 }
 
-function appendData(data: number, dataLength: number, ecc: number, eccLength: number, polynomial: readonly number[], stringBuffer: number[]) {
+function appendData(data: number, dataLength: number, ecc: number, eccLength: number, polynomial: Uint8Array, stringBuffer: number[]) {
   let bit, i, j;
 
   for (i = 0; i < eccLength; i++) {
@@ -193,19 +192,18 @@ function appendData(data: number, dataLength: number, ecc: number, eccLength: nu
   }
 }
 
-function appendEccToData(dataBlock: number, neccBlock1: number, neccBlock2: number, eccBlock: number, polynomial: number[], stringBuffer: number[]) {
-  let i;
+function appendEccToData(dataBlock: number, neccBlock1: number, neccBlock2: number, eccBlock: number, polynomial: Uint8Array, stringBuffer: number[]) {
   let data = 0;
   let ecc = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
 
-  for (i = 0; i < neccBlock1; i++) {
+  for (let i = 0; i < neccBlock1; i++) {
     appendData(data, dataBlock, ecc, eccBlock, polynomial, stringBuffer);
 
     data += dataBlock;
     ecc += eccBlock;
   }
 
-  for (i = 0; i < neccBlock2; i++) {
+  for (let i = 0; i < neccBlock2; i++) {
     appendData(data, dataBlock + 1, ecc, eccBlock, polynomial, stringBuffer);
 
     data += dataBlock + 1;
@@ -345,15 +343,13 @@ function calculateMaxLength(dataBlock: number, neccBlock1: number, neccBlock2: n
   return (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2;
 }
 
-function calculatePolynomial(polynomial: number[], eccBlock: number) {
-  let i, j;
-
+function calculatePolynomial(polynomial: Uint8Array, eccBlock: number) {
   polynomial[0] = 1;
 
-  for (i = 0; i < eccBlock; i++) {
+  for (let i = 0; i < eccBlock; i++) {
     polynomial[i + 1] = 1;
 
-    for (j = i; j > 0; j--) {
+    for (let j = i; j > 0; j--) {
       polynomial[j] = polynomial[j] ? polynomial[j - 1] ^
         Galois.EXPONENT[modN(Galois.LOG[polynomial[j]] + i)] : polynomial[j - 1];
     }
@@ -362,7 +358,7 @@ function calculatePolynomial(polynomial: number[], eccBlock: number) {
   }
 
   // Use logs for generator polynomial to save calculation step.
-  for (i = 0; i <= eccBlock; i++) {
+  for (let i = 0; i <= eccBlock; i++) {
     polynomial[i] = Galois.LOG[polynomial[i]];
   }
 }
@@ -461,7 +457,7 @@ function convertBitStream(length: number, version: number, value: string, ecc: U
     ecc[i] = value.charCodeAt(i);
   }
 
-  const stringBuffer = Array.from(ecc.slice());
+  const stringBuffer = ecc;
   const maxLength = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
 
   if (length >= maxLength - 2) {
@@ -512,21 +508,20 @@ function convertBitStream(length: number, version: number, value: string, ecc: U
     stringBuffer[index++] = 0x11;
   }
 
-  return stringBuffer;
+  return Array.from(stringBuffer);
 }
 
 function getBadness(length: number, badness: readonly number[]) {
-  let i;
   let badRuns = 0;
 
-  for (i = 0; i <= length; i++) {
+  for (let i = 0; i <= length; i++) {
     if (badness[i] >= 5) {
       badRuns += N1 + badness[i] - 5;
     }
   }
 
   // FBFFFBF as in finder.
-  for (i = 3; i < length - 1; i += 2) {
+  for (let i = 3; i < length - 1; i += 2) {
     if (badness[i - 2] === badness[i + 2] &&
       badness[i + 2] === badness[i - 1] &&
       badness[i - 1] === badness[i + 1] &&
@@ -542,9 +537,9 @@ function getBadness(length: number, badness: readonly number[]) {
   return badRuns;
 }
 
-function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask, stringBuffer: number[]): [number[], Uint8Array] {
+function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask, stringBuffer: number[]): Uint8Array {
   // Save pre-mask copy of frame.
-  stringBuffer = Array.from(buffer.slice());
+  stringBuffer = Array.from(buffer);
 
   let currentMask, i;
   let bit = 0;
@@ -572,7 +567,7 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
     }
 
     // Reset for next pass.
-    buffer = new Uint8Array(stringBuffer.slice());
+    buffer = new Uint8Array(stringBuffer);
   }
 
   // Redo best mask as none were "good enough" (i.e. last wasn't bit).
@@ -609,7 +604,7 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
     }
   }
 
-  return [stringBuffer, buffer];
+  return buffer;
 }
 
 function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, neccBlock1: number, neccBlock2: number, stringBuffer: readonly number[]): number[] {
@@ -736,14 +731,14 @@ function insertTimingRowAndColumn(buffer: Buffer, mask: Mask, width: number) {
 }
 
 function insertVersion(buffer: Buffer, width: number, version: number, mask: Mask) {
-  let i, j, x, y;
+  let i, j;
 
   if (version > 6) {
     i = Version.BLOCK[version - 7];
     j = 17;
 
-    for (x = 0; x < 6; x++) {
-      for (y = 0; y < 3; y++, j--) {
+    for (let x = 0; x < 6; x++) {
+      for (let y = 0; y < 3; y++, j--) {
         if (1 & (j > 11 ? version >> j - 12 : i >> j)) {
           buffer[5 - x + (width * (2 - y + width - 11))] = 1;
           buffer[2 - y + width - 11 + (width * (5 - x))] = 1;
@@ -763,7 +758,7 @@ function isMasked(x: number, y: number, mask: Mask) {
 }
 
 function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: number, neccBlock2: number, mask: Mask, buffer: Buffer, stringBuffer: readonly number[]) {
-  let bit, i, j;
+  let bit: number;
   let k = 1;
   let v = 1;
   let x = width - 1;
@@ -772,10 +767,10 @@ function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: nu
   // Interleaved data and ECC codes.
   const length = ((dataBlock + eccBlock) * (neccBlock1 + neccBlock2)) + neccBlock2;
 
-  for (i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     bit = stringBuffer[i];
 
-    for (j = 0; j < 8; j++, bit <<= 1) {
+    for (let j = 0; j < 8; j++, bit <<= 1) {
       if (0x80 & bit) {
         buffer[x + (width * y)] = 1;
       }
