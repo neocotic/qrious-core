@@ -137,7 +137,7 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   const stringBuffer = convertBitStream(options.value.length, version, value, ecc, dataBlock, neccBlock1, neccBlock2);
   calculatePolynomial(polynomial, eccBlock);
   appendEccToData(dataBlock, neccBlock1, neccBlock2, eccBlock, polynomial, stringBuffer);
-  const newStringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, Array.from(stringBuffer));
+  const newStringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, stringBuffer.slice());
   pack(width, dataBlock, eccBlock, neccBlock1, neccBlock2, mask, buffer, newStringBuffer);
   buffer = finish(level, badness, buffer, width, mask, newStringBuffer);
 
@@ -537,9 +537,9 @@ function getBadness(length: number, badness: readonly number[]) {
   return badRuns;
 }
 
-function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask, stringBuffer: number[]): Uint8Array {
+function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask, stringBuffer: Uint8Array): Uint8Array {
   // Save pre-mask copy of frame.
-  stringBuffer = Array.from(buffer);
+  stringBuffer = buffer.slice();
 
   let currentMask, i;
   let bit = 0;
@@ -607,7 +607,7 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
   return buffer;
 }
 
-function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, neccBlock1: number, neccBlock2: number, stringBuffer: readonly number[]): number[] {
+function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, neccBlock1: number, neccBlock2: number, stringBuffer: Uint8Array): Uint8Array {
   let i, j;
   let k = 0;
   const maxLength = calculateMaxLength(dataBlock, neccBlock1, neccBlock2);
@@ -632,7 +632,7 @@ function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, 
     }
   }
 
-  return Array.from(ecc);
+  return ecc;
 }
 
 function insertAlignments(version: number, width: number, buffer: Uint8Array, mask: Uint8Array,) {
@@ -757,7 +757,7 @@ function isMasked(x: number, y: number, mask: Mask) {
   return mask[bit] === 1;
 }
 
-function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: number, neccBlock2: number, mask: Mask, buffer: Buffer, stringBuffer: readonly number[]) {
+function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: number, neccBlock2: number, mask: Mask, buffer: Buffer, stringBuffer: Uint8Array) {
   let bit: number;
   let k = 1;
   let v = 1;
