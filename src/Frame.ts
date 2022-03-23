@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /*
  * QRious
  * Copyright (C) 2017 Alasdair Mercer
@@ -89,14 +90,14 @@ export default function(options: UserFacingFrameOptions): FrameResults {
   let neccBlock2 = 0;
   let dataBlock = 0;
   let eccBlock = 0;
-  let badness: number[] = [];
-  let polynomial: number[] = [];
+  const badness: number[] = [];
+  const polynomial: number[] = [];
   let stringBuffer: number[] = [];
 
   const processedOptions: Required<FrameOptions> = { level: 'L', ...options };
 
-  let level = ErrorCorrection.LEVELS[processedOptions.level];
-  let value = options.value;
+  const level = ErrorCorrection.LEVELS[processedOptions.level];
+  const value = options.value;
 
   while (version < 40) {
     version++;
@@ -144,7 +145,7 @@ export default function(options: UserFacingFrameOptions): FrameResults {
   return {
     width,
     buffer
-  }
+  };
 }
 
 function addAlignment(x: number, y: number, buffer: Buffer, mask: Mask, width: number) {
@@ -608,7 +609,7 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
     }
   }
 
-  return [stringBuffer, buffer]
+  return [stringBuffer, buffer];
 }
 
 function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, neccBlock1: number, neccBlock2: number, stringBuffer: readonly number[]): number[] {
@@ -672,11 +673,9 @@ function insertAlignments(version: number, width: number, buffer: Uint8Array, ma
 }
 
 function insertFinders(mask: Mask, buffer: Buffer, width: number) {
-  let i, j, x, y;
-
-  for (i = 0; i < 3; i++) {
-    j = 0;
-    y = 0;
+  for (let i = 0; i < 3; i++) {
+    let j = 0;
+    let y = 0;
 
     if (i === 1) {
       j = width - 7;
@@ -687,21 +686,21 @@ function insertFinders(mask: Mask, buffer: Buffer, width: number) {
 
     buffer[y + 3 + (width * (j + 3))] = 1;
 
-    for (x = 0; x < 6; x++) {
+    for (let x = 0; x < 6; x++) {
       buffer[y + x + (width * j)] = 1;
       buffer[y + (width * (j + x + 1))] = 1;
       buffer[y + 6 + (width * (j + x))] = 1;
       buffer[y + x + 1 + (width * (j + 6))] = 1;
     }
 
-    for (x = 1; x < 5; x++) {
+    for (let x = 1; x < 5; x++) {
       setMask(y + x, j + 1, mask);
       setMask(y + 1, j + x + 1, mask);
       setMask(y + 5, j + x, mask);
       setMask(y + x + 1, j + 5, mask);
     }
 
-    for (x = 2; x < 4; x++) {
+    for (let x = 2; x < 4; x++) {
       buffer[y + x + (width * (j + 2))] = 1;
       buffer[y + 2 + (width * (j + x + 1))] = 1;
       buffer[y + 4 + (width * (j + x))] = 1;

@@ -1,5 +1,5 @@
 
-{
+module.exports = {
   "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": [
@@ -8,7 +8,8 @@
   ],
   "extends": [
     "notninja/es6",
-    "plugin:@typescript-eslint/recommended"
+    'plugin:@typescript-eslint/recommended',
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
   "env": {
     "node": true,
@@ -16,7 +17,9 @@
     "es2021": true
   },
   "parserOptions": {
-    "ecmaVersion": 13
+    "ecmaVersion": 13,
+    "tsconfigRootDir": __dirname,
+    "project": ['./tsconfig.json'],
   },
   "rules": {
     "valid-jsdoc": "off",
@@ -36,6 +39,7 @@
       {
         "args": "none"
       }
-    ]
+    ],
+    "@typescript-eslint/prefer-readonly": "error"
   }
 }
