@@ -91,7 +91,7 @@ export const FINAL_FORMAT: readonly number[] = Object.freeze([
  */
 export const LEVELS: Readonly<{
   // eslint-disable-next-line no-unused-vars
-  [K in Level]: number;
+  readonly [K in Level]: number;
 }> = Object.freeze({
   L: 1,
   M: 2,

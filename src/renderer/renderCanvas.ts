@@ -1,14 +1,14 @@
-import Frame, { UserFacingFrameOptions } from '../Frame';
+import { UserFacingFrameOptions, generateFrame } from '../Frame';
 import { defaultImageLikeRenderOptions, ImageLikeRenderOptions } from './options/image';
 import { getModuleSize } from './utils';
 
-export const renderCanvas = (options: Readonly<UserFacingFrameOptions<ImageLikeRenderOptions>>, canvas: HTMLCanvasElement) => {
-  const processedOptions: Required<ImageLikeRenderOptions> = { ...defaultImageLikeRenderOptions, ...options };
+export const renderCanvas = (options: UserFacingFrameOptions<ImageLikeRenderOptions>, canvas: HTMLCanvasElement) => {
+  const processedOptions: ImageLikeRenderOptions = { ...defaultImageLikeRenderOptions, ...options };
 
-  const frame = Frame(options);
+  const frame = generateFrame(options);
 
   let i, j;
-  const moduleSize = getModuleSize(frame, processedOptions.padding, processedOptions.size);
+  const moduleSize = getModuleSize(frame.width, processedOptions.size);
   const context = canvas.getContext('2d');
 
   if (context == null) {
@@ -22,8 +22,8 @@ export const renderCanvas = (options: Readonly<UserFacingFrameOptions<ImageLikeR
     for (j = 0; j < frame.width; j++) {
       if (frame.buffer[(j * frame.width) + i]) {
         context.fillRect(
-          (moduleSize * i) + processedOptions.padding,
-          (moduleSize * j) + processedOptions.padding,
+          (moduleSize * i),
+          (moduleSize * j),
           moduleSize, moduleSize
         );
       }

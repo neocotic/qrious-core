@@ -18,6 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Bitwise notes:
+// x ^ 1
+//  f(0) = 1
+//  f(1) = 0
+
 import * as Alignment from './constants/alignment';
 import * as ErrorCorrection from './constants/errorCorrection';
 import * as Galois from './constants/galois';
@@ -28,13 +33,17 @@ import * as Version from './constants/version';
  */
 export interface FrameOptions {
   /** The value to be encoded. */
-  value?: string;
+  readonly value: string;
   /** The ECC level to be used. Default is L */
-  level?: ErrorCorrection.Level;
+  readonly level: ErrorCorrection.Level;
 }
 
 /** Utility to make value required for users inputting in a value. */
-export type UserFacingFrameOptions<T = FrameOptions> = T & { value: string }
+export type UserFacingFrameOptions<T = FrameOptions> = Partial<T> & { readonly value: string }
+
+export type RenderOptionsDefaults<T = FrameOptions> = Omit<T, 'value'> & { readonly value?: string };
+
+export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> = Object.freeze({ level: 'L' });
 
 // *Badness* coefficients.
 const N1 = 3;
@@ -75,8 +84,8 @@ function modN(x: number) {
 }
 
 export interface FrameResults {
-  buffer: Uint8Array
-  width: number
+  readonly buffer: Uint8Array
+  readonly width: number
 }
 
 /**
@@ -84,7 +93,7 @@ export interface FrameResults {
  *
  * @param options - the options to be used
  */
-export default function(options: Readonly<UserFacingFrameOptions>): FrameResults {
+export function generateFrame(options: UserFacingFrameOptions): FrameResults {
   let version = 0;
   let neccBlock1 = 0;
   let neccBlock2 = 0;
@@ -92,7 +101,7 @@ export default function(options: Readonly<UserFacingFrameOptions>): FrameResults
   let eccBlock = 0;
   const badness: number[] = [];
 
-  const processedOptions: Readonly<Required<FrameOptions>> = { level: 'L', ...options };
+  const processedOptions: Required<FrameOptions> = { ...defaultFrameOptions, ...options };
 
   const level = ErrorCorrection.LEVELS[processedOptions.level];
   const value = options.value;
@@ -539,7 +548,7 @@ function getBadness(length: number, badness: readonly number[]) {
 
 function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask): Uint8Array {
   // Save pre-mask copy of frame.
-  let tempBuffer = buffer.slice();
+  const tempBuffer = buffer.slice();
 
   let currentMask, i;
   let bit = 0;
@@ -637,7 +646,7 @@ function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, 
 
 function insertAlignments(version: number, width: number, buffer: Uint8Array, mask: Uint8Array) {
   if (version > 1) {
-    let i = Alignment.BLOCK[version];
+    const i = Alignment.BLOCK[version];
     let y = width - 7;
 
     for (;;) {
@@ -730,7 +739,7 @@ function insertTimingRowAndColumn(buffer: Buffer, mask: Mask, width: number) {
 
 function insertVersion(buffer: Buffer, width: number, version: number, mask: Mask) {
   if (version > 6) {
-    let i = Version.BLOCK[version - 7];
+    const i = Version.BLOCK[version - 7];
     let j = 17;
 
     for (let x = 0; x < 6; x++) {

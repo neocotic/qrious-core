@@ -1,19 +1,14 @@
-import Frame, { UserFacingFrameOptions } from '../Frame';
-import { BaseRenderOptions, defaultBaseRenderOptions } from './options/base';
+import { FrameOptions, UserFacingFrameOptions, defaultFrameOptions, generateFrame } from '../Frame';
 
-export const renderTwoTone = (options: Readonly<UserFacingFrameOptions<BaseRenderOptions>> | string): string => {
-  const processedOptions: Required<BaseRenderOptions> = {
-    ...defaultBaseRenderOptions,
+export const renderTwoTone = (options: Readonly<UserFacingFrameOptions<FrameOptions>> | string): string => {
+  const processedOptions: Required<FrameOptions> = {
+    ...defaultFrameOptions,
     ...(typeof options === 'string' ? { value: options } : options)
   };
 
-  const frame = Frame(processedOptions);
+  const frame = generateFrame(processedOptions);
 
   let str = '';
-
-  for (let p = 0; p < processedOptions.padding; p++) {
-    str += '\n';
-  }
 
   for (let i = 0; i < frame.width; i += 2) {
     for (let j = 0; j < frame.width; j++) {
@@ -22,18 +17,14 @@ export const renderTwoTone = (options: Readonly<UserFacingFrameOptions<BaseRende
       } else if (!frame.buffer[(i * frame.width) + j] && frame.buffer[((i + 1) * frame.width) + j]) {
         str += "▄";
       } else if (frame.buffer[(i * frame.width) + j] && !frame.buffer[((i + 1) * frame.width) + j]) {
-        str += "▀"
+        str += "▀";
       } else {
-        str += " "
+        str += " ";
       }
     }
     if (i !== frame.width - 1) {
       str += '\n';
     }
-  }
-
-  for (let p = 0; p < processedOptions.padding; p++) {
-    str += '\n';
   }
 
   return str;

@@ -43,7 +43,7 @@ const twoTone = `█▀▀▀▀▀█ ▀▀▀█▄▄▀ ▄ ▀▄  █▀�
 █▀▀▀▀▀█  █▀█▄  █ ▄▀██ ▀ █▀ ▄ 
 █ ███ █ █▄▄▀▀█▄█▄▄▄▀██▀█▀▀ ▀▄
 █ ▀▀▀ █ ▄▄▄█▀▀▀█  █▄ ▄▄█▀▄█▀█
-▀▀▀▀▀▀▀ ▀▀  ▀ ▀ ▀ ▀▀▀▀  ▀▀   `
+▀▀▀▀▀▀▀ ▀▀  ▀ ▀ ▀ ▀▀▀▀  ▀▀   `;
 
 // import { promises as fs } from "fs"
 // import crypto from "crypto"
@@ -61,8 +61,8 @@ test('Ensure base example.com example is valid', () => {
 });
 
 test('Ensure twotone is valid', () => {
-  expect(renderTwoTone("https://www.youtube.com/watch?v=FvyimePmD4E")).toBe(twoTone)
-})
+  expect(renderTwoTone("https://www.youtube.com/watch?v=FvyimePmD4E")).toBe(twoTone);
+});
 
 test('Ensure all resources are valid', (done) => {
   createReadStream('./test/resources.txt', 'utf-8')

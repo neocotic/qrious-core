@@ -4,7 +4,8 @@ module.exports = {
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint",
-    "eslint-plugin-tsdoc"
+    "eslint-plugin-tsdoc",
+    "eslint-plugin-perf-standard"
   ],
   "extends": [
     "notninja/es6",
@@ -43,6 +44,7 @@ module.exports = {
     "@typescript-eslint/prefer-readonly": "error",
     "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/prefer-optional-chain": "error",
-    "@typescript-eslint/prefer-for-of": "error"
+    "@typescript-eslint/prefer-for-of": "error",
+    "perf-standard/check-function-inline": "error"
   }
 }
