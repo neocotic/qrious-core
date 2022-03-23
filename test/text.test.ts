@@ -1,6 +1,7 @@
 import { renderText } from '../src/index';
 import { createReadStream } from 'fs';
 import split from 'split';
+import { renderTwoTone } from '../src/renderer/renderTwoTone';
 
 const exampleCom = `####### ### ##### #######
 #     # #  ## #   #     #
@@ -28,6 +29,22 @@ const exampleCom = `####### ### ##### #######
 #     #  # # ## ## # ### 
 ####### # ### ##  # #####`;
 
+const twoTone = `█▀▀▀▀▀█ ▀▀▀█▄▄▀ ▄ ▀▄  █▀▀▀▀▀█
+█ ███ █  ▀▄█ █▀██▄▄▄█ █ ███ █
+█ ▀▀▀ █  ▄▀█▀ █ ▀ ▀▀▄ █ ▀▀▀ █
+▀▀▀▀▀▀▀ █▄▀ █▄▀ ▀ ▀ █ ▀▀▀▀▀▀▀
+█▀▄▀▀ ▀ ▄▀▄ ▀▀▀▄ ▀ █ ▄▀▄▄ ▄▄▀
+▄█▀ ▀█▀█▀▀  ▀ ▀█ ▄ ▄███▀ ▄▀ ▄
+▄▀▀▄ ▀▀▀▄██ ▄ ▄█▄ ▄ █ █▀▄▄▄▄█
+▀▀▀█▄▄▀█▀▄█ ▄▀▀█▀ ▀▀▀▄ █▄ █ █
+█ ▄▀▄▄▀█▄▀ █▀  ▀ ▄ ▄█▄  ▄▀▄▄ 
+██▄ ▀ ▀▄█▀▀▄▀█▄▀▄▀▄▀█▄▀▄▄█▄ ▀
+▀▀   ▀▀▀▄█▀▀▄  ▄▄▀▄▀█▀▀▀██▀▀ 
+█▀▀▀▀▀█  █▀█▄  █ ▄▀██ ▀ █▀ ▄ 
+█ ███ █ █▄▄▀▀█▄█▄▄▄▀██▀█▀▀ ▀▄
+█ ▀▀▀ █ ▄▄▄█▀▀▀█  █▄ ▄▄█▀▄█▀█
+▀▀▀▀▀▀▀ ▀▀  ▀ ▀ ▀ ▀▀▀▀  ▀▀   `
+
 // import { promises as fs } from "fs"
 // import crypto from "crypto"
 // await fs.writeFile("./test/resources.txt", "");
@@ -42,6 +59,10 @@ const exampleCom = `####### ### ##### #######
 test('Ensure base example.com example is valid', () => {
   expect(renderText({ value: 'https://example.com' })).toBe(exampleCom);
 });
+
+test('Ensure twotone is valid', () => {
+  expect(renderTwoTone("https://www.youtube.com/watch?v=FvyimePmD4E")).toBe(twoTone)
+})
 
 test('Ensure all resources are valid', (done) => {
   createReadStream('./test/resources.txt', 'utf-8')
