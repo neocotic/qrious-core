@@ -75,13 +75,9 @@ function getMaskBit(x: number, y: number) {
 }
 
 function modN(x: number) {
-  while (x >= 255) {
-    x -= 255;
-    x = (x >> 8) + (x & 255);
-  }
-
-  return x;
+  return x % 255;
 }
+
 export interface FrameResults {
   readonly buffer: Uint8Array
   readonly width: number
@@ -337,7 +333,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (!(Number(r3x && r3x === r3y) + (x + y & 1) & 1) && !isMasked(x, y, currentMask)) {
+        if (!(+(r3x && r3x === r3y) + (x + y & 1) & 1) && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -864,11 +860,9 @@ function setMask(x: number, y: number, mask: Mask) {
 }
 
 function syncMask(width: number, mask: Mask, buffer: Buffer) {
-  for (let y = 0; y < width; y++) {
-    for (let x = 0; x <= y; x++) {
-      if (buffer[x + (width * y)]) {
-        setMask(x, y, mask);
-      }
+  for (let z = 0; z < width * width; z++) {
+    if (buffer[z] === 1) {
+      setMask(z % width, ~~(z / width), mask);
     }
   }
 }
