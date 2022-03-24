@@ -301,7 +301,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (!((x & y & 1) + Number(!(Number(!r3x) | Number(!r3y)))) && !isMasked(x, y, currentMask)) {
+        if (!((x & y & 1) + (r3x ^ 1 | r3y ^ 1) ^ 1) && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -319,7 +319,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (Number(!((x & y & 1) + Number(r3x && r3x === r3y) & 1)) && !isMasked(x, y, currentMask)) {
+        if (((x & y & 1) + Number(r3x && r3x === r3y) & 1) ^ 1 && !isMasked(x, y, currentMask)) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -760,22 +760,26 @@ function insertTimingRowAndColumn(buffer: Buffer, mask: Mask, width: number) {
 }
 
 function insertVersion(buffer: Buffer, width: number, version: number, mask: Mask) {
-  if (version > 6) {
-    const i = Version.BLOCK[version - 7];
-    let j = 17;
 
-    for (let x = 0; x < 6; x++) {
-      for (let y = 0; y < 3; y++, j--) {
-        if (1 & (j > 11 ? version >> j - 12 : i >> j)) {
-          buffer[5 - x + (width * (2 - y + width - 11))] = 1;
-          buffer[2 - y + width - 11 + (width * (5 - x))] = 1;
-        } else {
-          setMask(5 - x, 2 - y + width - 11, mask);
-          setMask(2 - y + width - 11, 5 - x, mask);
-        }
+  if (version <= 6) {
+    return;
+  }
+
+  const i = Version.BLOCK[version - 7];
+  let j = 17;
+
+  for (let x = 0; x < 6; x++) {
+    for (let y = 0; y < 3; y++, j--) {
+      if (1 & (j > 11 ? version >> j - 12 : i >> j)) {
+        buffer[5 - x + (width * (2 - y + width - 11))] = 1;
+        buffer[2 - y + width - 11 + (width * (5 - x))] = 1;
+      } else {
+        setMask(5 - x, 2 - y + width - 11, mask);
+        setMask(2 - y + width - 11, 5 - x, mask);
       }
     }
   }
+  
 }
 
 function isMasked(x: number, y: number, mask: Mask) {
@@ -814,7 +818,7 @@ function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: nu
               y--;
             } else {
               x -= 2;
-              k = Number(!k);
+              k ^= 1;
 
               if (x === 6) {
                 x--;
@@ -825,7 +829,7 @@ function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: nu
             y++;
           } else {
             x -= 2;
-            k = Number(!k);
+            k ^= 1;
 
             if (x === 6) {
               x--;
@@ -834,7 +838,7 @@ function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: nu
           }
         }
 
-        v = Number(!v);
+        v ^= 1;
       } while (isMasked(x, y, mask));
     }
   }
