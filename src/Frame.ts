@@ -19,9 +19,13 @@
  */
 
 // Bitwise notes:
-// x ^ 1
+// f(x) = x ^ 1
 //  f(0) = 1
 //  f(1) = 0
+// f(x) = x >> 1
+// aka f(x) = Math.floor(x / 2)
+// f(x) = x << 1
+// aka f(x) = x * 2
 
 import * as Alignment from './constants/alignment';
 import * as ErrorCorrection from './constants/errorCorrection';
@@ -43,6 +47,11 @@ export type UserFacingFrameOptions<T = FrameOptions> = Partial<T> & { readonly v
 
 export type RenderOptionsDefaults<T = FrameOptions> = Omit<T, 'value'> & { readonly value?: string };
 
+export type BinaryUint8Array = Uint8Array & { 
+  [key: number]: 0 | 1
+};
+export type ReadOnlyBinaryUint8Array = Omit<BinaryUint8Array, 'copyWithin' | 'fill' | 'reverse' | 'set' | 'sort'> & { readonly [key: number]: 0 | 1 };
+
 export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> = Object.freeze({ level: 'L' });
 
 // *Badness* coefficients.
@@ -54,19 +63,12 @@ const N3 = 40;
 
 const N4 = 10;
 
-type Mask = Uint8Array;
-type Buffer = Uint8Array;
-
-function getMaskBit(x: number, y: number) {
-  let bit;
-
+function getMaskBit(x: number, y: number): number {
   if (x > y) {
-    bit = x;
-    x = y;
-    y = bit;
+    return getMaskBit(y, x);
   }
 
-  bit = y;
+  let bit = y;
   bit += y * y;
   bit >>= 1;
   bit += x;
@@ -111,7 +113,7 @@ export function generateFrame(options: UserFacingFrameOptions): FrameResults {
     dataBlock = ErrorCorrection.BLOCKS[index++];
     eccBlock = ErrorCorrection.BLOCKS[index];
     
-    if (value.length <= (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + Number(version <= 9)) {
+    if (value.length <= (dataBlock * (neccBlock1 + neccBlock2)) + neccBlock2 - 3 + +(version <= 9)) {
       break;
     }
   }
@@ -119,10 +121,10 @@ export function generateFrame(options: UserFacingFrameOptions): FrameResults {
   // FIXME: Ensure that it fits instead of being truncated.
   const width = 17 + (4 * version);
 
-  let buffer = new Uint8Array(width * width);
+  let buffer = new Uint8Array(width * width) as BinaryUint8Array;
 
   const ecc = new Uint8Array(dataBlock + ((dataBlock + eccBlock) * (neccBlock1 + neccBlock2)) + neccBlock2);
-  const mask = new Uint8Array(((width * (width + 1)) + 1) / 2);
+  const mask = new Uint8Array(((width * (width + 1)) + 1) >> 1) as BinaryUint8Array;
 
   insertFinders(mask, buffer, width);
   insertAlignments(version, width, buffer, mask);
@@ -138,7 +140,7 @@ export function generateFrame(options: UserFacingFrameOptions): FrameResults {
 
   const polynomial: Uint8Array = new Uint8Array(eccBlock);
 
-  const stringBuffer = convertBitStream(options.value.length, version, value, ecc, dataBlock, neccBlock1, neccBlock2);
+  const stringBuffer = convertBitStream(version, value, ecc, dataBlock, neccBlock1, neccBlock2);
   calculatePolynomial(polynomial, eccBlock);
   appendEccToData(dataBlock, neccBlock1, neccBlock2, eccBlock, polynomial, stringBuffer);
   const newStringBuffer = interleaveBlocks(ecc, eccBlock, dataBlock, neccBlock1, neccBlock2, stringBuffer.slice());
@@ -151,19 +153,17 @@ export function generateFrame(options: UserFacingFrameOptions): FrameResults {
   };
 }
 
-function addAlignment(x: number, y: number, buffer: Buffer, mask: Mask, width: number) {
-  let i;
-
+function addAlignment(x: number, y: number, buffer: BinaryUint8Array, mask: BinaryUint8Array, width: number) {
   buffer[x + (width * y)] = 1;
 
-  for (i = -2; i < 2; i++) {
+  for (let i = -2; i < 2; i++) {
     buffer[x + i + (width * (y - 2))] = 1;
     buffer[x - 2 + (width * (y + i + 1))] = 1;
     buffer[x + 2 + (width * (y + i))] = 1;
     buffer[x + i + 1 + (width * (y + 2))] = 1;
   }
 
-  for (i = 0; i < 2; i++) {
+  for (let i = 0; i < 2; i++) {
     setMask(x - 1, y + i, mask);
     setMask(x + 1, y - i, mask);
     setMask(x - i, y - 1, mask);
@@ -215,14 +215,14 @@ function appendEccToData(dataBlock: number, neccBlock1: number, neccBlock2: numb
   }
 }
 
-function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mask) {
+function applyMask(width: number, buffer: BinaryUint8Array, mask: number, currentMask: BinaryUint8Array) {
   let r3x, r3y, x, y;
 
   switch (mask) {
   case 0:
     for (y = 0; y < width; y++) {
       for (x = 0; x < width; x++) {
-        if (!((x + y) & 1) && !isMasked(x, y, currentMask)) {
+        if (((x + y) & 1) ^ 1 && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -232,7 +232,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
   case 1:
     for (y = 0; y < width; y++) {
       for (x = 0; x < width; x++) {
-        if (!(y & 1) && !isMasked(x, y, currentMask)) {
+        if (!(y & 1) && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -246,7 +246,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (!r3x && !isMasked(x, y, currentMask)) {
+        if (!r3x && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -264,7 +264,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (!r3x && !isMasked(x, y, currentMask)) {
+        if (!r3x && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -279,7 +279,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3y = !r3y;
         }
 
-        if (!r3y && !isMasked(x, y, currentMask)) {
+        if (!r3y && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -297,7 +297,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (!((x & y & 1) + (r3x ^ 1 | r3y ^ 1) ^ 1) && !isMasked(x, y, currentMask)) {
+        if (!((x & y & 1) + (r3x ^ 1 | r3y ^ 1) ^ 1) && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -315,7 +315,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (((x & y & 1) + Number(r3x && r3x === r3y) & 1) ^ 1 && !isMasked(x, y, currentMask)) {
+        if (((x & y & 1) + +(r3x && r3x === r3y) & 1) ^ 1 && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -333,7 +333,7 @@ function applyMask(width: number, buffer: Buffer, mask: number, currentMask: Mas
           r3x = 0;
         }
 
-        if (!(+(r3x && r3x === r3y) + (x + y & 1) & 1) && !isMasked(x, y, currentMask)) {
+        if (!(+(r3x && r3x === r3y) + (x + y & 1) & 1) && isMasked(x, y, currentMask) ^ 1) {
           buffer[x + (y * width)] ^= 1;
         }
       }
@@ -367,7 +367,7 @@ function calculatePolynomial(polynomial: Uint8Array, eccBlock: number) {
   }
 }
 
-function checkBadness(badness: number[], buffer: Buffer, width: number) {
+function checkBadness(badness: number[], buffer: ReadOnlyBinaryUint8Array, width: number) {
   let b1, h;
   let bad = 0;
 
@@ -453,11 +453,12 @@ function checkBadness(badness: number[], buffer: Buffer, width: number) {
   return bad;
 }
 
-function convertBitStream(length: number, version: number, value: string, ecc: Uint8Array, dataBlock: number, neccBlock1: number, neccBlock2: number): Uint8Array {
+function convertBitStream(version: number, value: string, ecc: Uint8Array, dataBlock: number, neccBlock1: number, neccBlock2: number): Uint8Array {
   let bit, i;
+  let length = value.length;
 
   // Convert string to bit stream. 8-bit data to QR-coded 8-bit data (numeric, alphanumeric, or kanji not supported).
-  for (i = 0; i < length; i++) {
+  for (i = 0; i < value.length; i++) {
     ecc[i] = value.charCodeAt(i);
   }
 
@@ -505,7 +506,7 @@ function convertBitStream(length: number, version: number, value: string, ecc: U
   }
 
   // Fill to end with pad pattern.
-  index = length + 3 - Number(version < 10);
+  index = length + 3 - +(version < 10);
 
   while (index < maxLength) {
     stringBuffer[index++] = 0xec;
@@ -541,9 +542,9 @@ function getBadness(length: number, badness: readonly number[]) {
   return badRuns;
 }
 
-function finish(level: number, badness: number[], buffer: Buffer, width: number, oldCurrentMask: Mask): Uint8Array {
+function finish(level: number, badness: number[], buffer: BinaryUint8Array, width: number, oldCurrentMask: BinaryUint8Array): BinaryUint8Array {
   // Save pre-mask copy of frame.
-  const tempBuffer = buffer.slice();
+  const tempBuffer = buffer.slice() as BinaryUint8Array;
 
   let currentMask, i;
   let bit = 0;
@@ -571,7 +572,7 @@ function finish(level: number, badness: number[], buffer: Buffer, width: number,
     }
 
     // Reset for next pass.
-    buffer = tempBuffer.slice();
+    buffer = tempBuffer.slice() as BinaryUint8Array;
   }
 
   // Redo best mask as none were "good enough" (i.e. last wasn't bit).
@@ -639,7 +640,7 @@ function interleaveBlocks(ecc: Uint8Array, eccBlock: number, dataBlock: number, 
   return ecc;
 }
 
-function insertAlignments(version: number, width: number, buffer: Uint8Array, mask: Uint8Array) {
+function insertAlignments(version: number, width: number, buffer: BinaryUint8Array, mask: BinaryUint8Array) {
   if (version > 1) {
     const i = Alignment.BLOCK[version];
     let y = width - 7;
@@ -675,7 +676,7 @@ function insertAlignments(version: number, width: number, buffer: Uint8Array, ma
  * @param buffer - The buffer to write the finders on
  * @param width - The width of the QR code -- used to get the starting coordinates of the finders.
  */
-function insertFinders(mask: Mask, buffer: Buffer, width: number) {
+function insertFinders(mask: BinaryUint8Array, buffer: BinaryUint8Array, width: number) {
   for (let i = 0; i < 3; i++) {
     insertFinder(
       mask, buffer, width,
@@ -704,7 +705,7 @@ function insertFinders(mask: Mask, buffer: Buffer, width: number) {
  * @param x - The left side of the finder
  * @param y - The top side of the finder
  */
-function insertFinder(mask: Mask, buffer: Buffer, width: number, x = 0, y = 0) {
+function insertFinder(mask: BinaryUint8Array, buffer: BinaryUint8Array, width: number, x = 0, y = 0) {
   buffer[y + 3 + (width * (x + 3))] = 1;
 
   for (let i = 0; i < 6; i++) {
@@ -729,7 +730,7 @@ function insertFinder(mask: Mask, buffer: Buffer, width: number, x = 0, y = 0) {
   }
 }
 
-function insertTimingGap(width: number, mask: Mask) {
+function insertTimingGap(width: number, mask: BinaryUint8Array) {
   for (let y = 0; y < 7; y++) {
     setMask(7, y, mask);
     setMask(width - 8, y, mask);
@@ -743,7 +744,7 @@ function insertTimingGap(width: number, mask: Mask) {
   }
 }
 
-function insertTimingRowAndColumn(buffer: Buffer, mask: Mask, width: number) {
+function insertTimingRowAndColumn(buffer: BinaryUint8Array, mask: BinaryUint8Array, width: number) {
   for (let x = 0; x < width - 14; x++) {
     if (x & 1) {
       setMask(8 + x, 6, mask);
@@ -755,7 +756,7 @@ function insertTimingRowAndColumn(buffer: Buffer, mask: Mask, width: number) {
   }
 }
 
-function insertVersion(buffer: Buffer, width: number, version: number, mask: Mask) {
+function insertVersion(buffer: BinaryUint8Array, width: number, version: number, mask: BinaryUint8Array) {
 
   if (version <= 6) {
     return;
@@ -778,13 +779,13 @@ function insertVersion(buffer: Buffer, width: number, version: number, mask: Mas
   
 }
 
-function isMasked(x: number, y: number, mask: Mask) {
+function isMasked(x: number, y: number, mask: ReadOnlyBinaryUint8Array): number {
   const bit = getMaskBit(x, y);
 
-  return mask[bit] === 1;
+  return mask[bit] & 1;
 }
 
-function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: number, neccBlock2: number, mask: Mask, buffer: Buffer, stringBuffer: Uint8Array) {
+function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: number, neccBlock2: number, mask: BinaryUint8Array, buffer: BinaryUint8Array, stringBuffer: Uint8Array) {
   let bit: number;
   let k = 1;
   let v = 1;
@@ -840,7 +841,7 @@ function pack(width: number, dataBlock: number, eccBlock: number, neccBlock1: nu
   }
 }
 
-function reverseMask(mask: Mask, width: number) {
+function reverseMask(mask: BinaryUint8Array, width: number) {
   for (let x = 0; x < 9; x++) {
     setMask(x, 8, mask);
   }
@@ -855,13 +856,13 @@ function reverseMask(mask: Mask, width: number) {
   }
 }
 
-function setMask(x: number, y: number, mask: Mask) {
+function setMask(x: number, y: number, mask: BinaryUint8Array) {
   mask[getMaskBit(x, y)] = 1;
 }
 
-function syncMask(width: number, mask: Mask, buffer: Buffer) {
-  for (let z = 0; z < width * width; z++) {
-    if (buffer[z] === 1) {
+function syncMask(width: number, mask: BinaryUint8Array, buffer: BinaryUint8Array) {
+  for (let z = 0; z < buffer.length; z++) {
+    if (buffer[z] & 1) {
       setMask(z % width, ~~(z / width), mask);
     }
   }
