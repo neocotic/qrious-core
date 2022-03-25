@@ -20,5 +20,7 @@
 export { renderText } from './renderer/renderText';
 export { renderCanvas } from './renderer/renderCanvas';
 export { renderTwoTone } from './renderer/renderTwoTone';
-export { ImageLikeRenderOptions, defaultImageLikeRenderOptions } from './renderer/options/image';
-export { generateFrame, FrameOptions, UserFacingFrameOptions, defaultFrameOptions } from './Frame';
+export type { ImageLikeRenderOptions } from './renderer/options/image';
+export { defaultImageLikeRenderOptions } from './renderer/options/image';
+export type { FrameOptions, UserFacingFrameOptions } from './Frame';
+export { generateFrame, defaultFrameOptions } from './Frame';
