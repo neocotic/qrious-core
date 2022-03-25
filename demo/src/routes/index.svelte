@@ -4,11 +4,13 @@
   const renderSystems = [{
     name: "ASCII",
     render: renderText,
-    lineSpacing: ".75rem"
+    lineSpacing: ".75rem",
+    tracking: "0"
   }, {
     name: "Unicode",
     render: renderTwoTone,
-    lineSpacing: "1rem"
+    lineSpacing: "1rem",
+    tracking: "-0.05em"
   }]
 
 
@@ -26,6 +28,9 @@
   </select>
   <input class="flex-grow" bind:value={value}>
 </div>
-<h1 class="font-mono" style="line-height: {selectedRenderSystem.lineSpacing}">
+<h1 class="font-mono" style="
+line-height: {selectedRenderSystem.lineSpacing};
+letter-spacing: {selectedRenderSystem.tracking}
+">
   {@html selectedRenderSystem?.render(value)?.replaceAll("\n", "<br/>")?.replaceAll(" ", "&nbsp;")}
 </h1>
