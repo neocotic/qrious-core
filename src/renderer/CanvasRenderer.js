@@ -46,7 +46,7 @@ var CanvasRenderer = Renderer.extend({
     for (i = 0; i < frame.width; i++) {
       for (j = 0; j < frame.width; j++) {
         if (frame.buffer[(j * frame.width) + i]) {
-          context.fillRect((moduleSize * i) + offset, (moduleSize * j) + offset, moduleSize, moduleSize);
+          context.fillRect(Math.ceil((moduleSize * i) + offset), Math.ceil((moduleSize * j) + offset), Math.ceil(moduleSize), Math.ceil(moduleSize));
         }
       }
     }
